@@ -16,7 +16,7 @@
   "dependencies": {
     "@wangeditor/editor": "^5.1.23",
     "@wangeditor/editor-for-vue": "^1.0.2",
-    "axios": "0.18.1",
+    "axios": "0.28.0",
     "core-js": "^3.37.1",
     "crypto-js": "^4.2.0",
     "echarts": "^4.9.0",
