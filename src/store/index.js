@@ -16,17 +16,17 @@ const store = new Vuex.Store({
   },
   mutations: {
     setUserLoggedIn(state, value) {
-      state.isUserLoggedIn = value
-      if (value && !state.heartbeatIntervalId) {
-        this.dispatch('sendHeartbeat')
-        state.heartbeatIntervalId = setInterval(() => {
-          // 这里可以触发发送心跳的action
-          this.dispatch('sendHeartbeat')
-        }, 300000) // 每5分钟发送一次心跳
-      } else if (!value && state.heartbeatIntervalId) {
-        clearInterval(state.heartbeatIntervalId)
-        state.heartbeatIntervalId = null
-      }
+      // state.isUserLoggedIn = value
+      // if (value && !state.heartbeatIntervalId) {
+      //   this.dispatch('sendHeartbeat')
+      //   state.heartbeatIntervalId = setInterval(() => {
+      //     // 这里可以触发发送心跳的action
+      //     this.dispatch('sendHeartbeat')
+      //   }, 300000) // 每5分钟发送一次心跳
+      // } else if (!value && state.heartbeatIntervalId) {
+      //   clearInterval(state.heartbeatIntervalId)
+      //   state.heartbeatIntervalId = null
+      // }
     }
   },
 
@@ -35,14 +35,14 @@ const store = new Vuex.Store({
       // alert('发送心跳请求');
       // 发送心跳请求到后端
 
-      trackPresence({ userId: state.userId }).then(response => {
-        if (response.code) {
-          setToken(response.data)
-        }
-      })
-        .catch(error => {
-          console.error('心跳发送失败:', error)
-        })
+      // trackPresence({ userId: state.userId }).then(response => {
+      //   if (response.code) {
+      //     setToken(response.data)
+      //   }
+      // })
+      //   .catch(error => {
+      //     console.error('心跳发送失败:', error)
+      //   })
       // this.$axios.post('/api/auths/track-presence', { userId: state.userId })
       //   .then(response => {
       //   })

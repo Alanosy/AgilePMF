@@ -46,15 +46,15 @@ const actions = {
       login(userInfo).then(response => {
         const { data } = response
         if (response.code === 1) {
-          const info = parseJwt(data)
-          const roleId = JSON.parse(info.userInfo).roleId
-          if (roleId === 1) {
-            window.localStorage.setItem('roles', 'student')
-          } else if (roleId === 2) {
-            window.localStorage.setItem('roles', 'teacher')
-          } else if (roleId === 3) {
-            window.localStorage.setItem('roles', 'admin')
-          }
+          // const info = parseJwt(data)
+          // const roleId = JSON.parse(info.userInfo).roleId
+          // if (roleId === 1) {
+          //   window.localStorage.setItem('roles', 'student')
+          // } else if (roleId === 2) {
+          //   window.localStorage.setItem('roles', 'teacher')
+          // } else if (roleId === 3) {
+          //   window.localStorage.setItem('roles', 'admin')
+          // }
 
           commit('SET_TOKEN', data)
           setToken(data)

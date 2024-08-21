@@ -15,3 +15,10 @@ export function saveItem(data) {
     data
   })
 }
+
+export function fetchProjects() {
+  return request({
+    url: 'projects/fetchProjects',
+    method: 'get',
+  })
+}

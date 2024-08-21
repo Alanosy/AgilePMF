@@ -1,11 +1,4 @@
-/*
- * @Author: yangiiiiii 14122140+yangiiiiiii@user.noreply.gitee.com
- * @Date: 2024-03-28 16:10:58
- * @LastEditors: 暮安 14122148+muanananan@user.noreply.gitee.com
- * @LastEditTime: 2024-04-18 14:08:49
- * @FilePath: \com-project\src\utils\request.js
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
+
 import axios from 'axios'
 import { Message } from 'element-ui'
 import store from '@/store'
