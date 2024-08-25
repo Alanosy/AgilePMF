@@ -2,19 +2,19 @@
   <div class="container">
     <div class="login-wrapper">
       <el-form
-        ref="registerForm"
-        :model="registerForm"
-        :rules="registerRules"
+        ref="loginForm"
+        :model="loginForm"
+        :rules="loginRules"
         class="login-form"
         auto-complete="on"
         label-position="left"
       >
-        <div class="header">Register</div>
+        <div class="header">Login</div>
         <div class="form-wrapper">
           <el-form-item prop="username">
             <el-input
               ref="username"
-              v-model="registerForm.username"
+              v-model="loginForm.username"
               placeholder="Username"
               name="username"
               type="text"
@@ -27,7 +27,7 @@
             <el-input
               :key="passwordType"
               ref="password"
-              v-model="registerForm.password"
+              v-model="loginForm.password"
               :type="passwordType"
               placeholder="Password"
               name="password"
@@ -37,24 +37,11 @@
             />
           </el-form-item>
 
-          <el-form-item prop="checkedPassword">
-            <el-input
-              :key="checkedPasswordType"
-              ref="checkedPassword"
-              v-model="registerForm.checkedPassword"
-              :type="checkedPasswordType"
-              placeholder="checkedPassword"
-              name="checkedPassword"
-              tabindex="2"
-              auto-complete="on"
-              @keyup.enter.native="handleLogin"
-            />
-          </el-form-item>
           <div style="display: flex">
-            <el-form-item prop="code">
+            <el-form-item prop="username">
               <el-input
-                ref="vcode"
-                v-model="registerForm.vcode"
+                ref="username"
+                v-model="code"
                 style="width: 300px"
                 placeholder="code"
                 name="code"
@@ -71,20 +58,21 @@
               @click="getVerify"
             />
           </div>
-          <el-form-item>
-            <el-button
-              :loading="loading"
-              type="primary"
-              style="width: 100%"
-              class="btn"
-              @click.native.prevent="registerFn"
-              >register</el-button
-            >
-          </el-form-item>
+           <el-form-item>
+        <el-button
+          :loading="loading"
+          type="primary"
+          style="width: 100%"
+          class="btn"
+          @click.native.prevent="handleLogin"
+          >login</el-button
+        >
+      </el-form-item>
+
         </div>
         <div class="msg">
-          Don't have an account?
-          <router-link to="/login">Log in</router-link>
+          Don't have account?
+          <router-link to="/register"> Sign up </router-link>
         </div>
       </el-form>
     </div>
@@ -117,23 +105,18 @@ export default {
       }
     };
     return {
-      registerForm: {
+      loginForm: {
         username: "",
         password: "",
-        checkedPassword: '' ,
-        vcode:""
       },
       code: "",
-      registerRules: {
+      loginRules: {
         username: [{ required: true, trigger: "blur", validator: validateUsername }],
         password: [{ required: true, trigger: "blur", validator: validatePassword }],
-        checkedPassword: [{ required: true, trigger: "blur", validator: validateUsername }],
-        vcode: [{ required: true, trigger: "blur", validator: validatePassword }],
       },
       loading: false,
       passwordType: "password",
       redirect: undefined,
-       checkedPasswordType: 'password',
     };
   },
   watch: {
@@ -145,11 +128,14 @@ export default {
     },
   },
   created() {
+    // this.getEmail()
   },
   methods: {
     getVerify() {
       this.$refs.captchaImg.src = `/api/auths/captcha?${Math.random()}`;
+      // obj.src = "/api/auths/captcha?" + Math.random();
     },
+
     showPwd() {
       if (this.passwordType === "password") {
         this.passwordType = "";
@@ -160,79 +146,44 @@ export default {
         this.$refs.password.focus();
       });
     },
-     registerFn() {
-      verifyCode(this.registerForm.vcode).then((res) => {
+    handleLogin() {
+      verifyCode(this.code).then((res) => {
         if (res.code) {
-          const registerData = {
-            userName: this.registerForm.userName,
-            realName: this.registerForm.realName,
-            password: this.registerForm.password,
-            checkedPassword: this.registerForm.checkedPassword
-          }
-          register(registerData).then((res2) => {
-            if (res2.code) {
-              Message({
-                message: res2.msg,
-                type: 'success',
-                duration: 5 * 1000
-              })
-              this.$router.push({ path: '/teamChoice' ,query:{data:res2.data}})
+          this.$refs.loginForm.validate((valid) => {
+            if (valid) {
+              this.loading = true;
+              const loginData = {
+                username: this.loginForm.username,
+                password: this.loginForm.password,
+              };
+              this.$store
+                .dispatch("user/login", loginData)
+                .then(() => {
+                  this.$store.commit("menu/CLOSE_SIDEBAR");
+                  const userInfo = getTokenInfo();
+                  console.log(userInfo);
+                  this.$store.dispatch("loginUser", { id: userInfo.id });
+                  this.$router.push({ path: "index" });
+                  this.loading = false;
+                })
+                .catch((error) => {
+                  this.getVerify();
+                  Message.error(error.msg);
+                  this.loading = false;
+                });
             } else {
-              this.getVerify()
-              Message({
-                message: res2.msg,
-                type: 'error',
-                duration: 5 * 1000
-              })
+              return false;
             }
-          })
+          });
         } else {
-          this.getVerify()
+          this.getVerify();
           this.$message({
-            type: 'info',
-            message: res.msg
-          })
+            type: "info",
+            message: res.msg,
+          });
         }
-      })
+      });
     },
-    // handleLogin() {
-    //   verifyCode(this.code).then((res) => {
-    //     if (res.code) {
-    //       this.$refs.loginForm.validate((valid) => {
-    //         if (valid) {
-    //           this.loading = true;
-    //           const registerData = {
-    //             username: this.registerForm.username,
-    //             password: this.registerForm.password,
-    //           };
-    //           this.$store
-    //             .dispatch("user/login", registerData)
-    //             .then(() => {
-    //               this.$store.commit("menu/CLOSE_SIDEBAR");
-    //               const userInfo = getTokenInfo();
-    //               console.log(userInfo);
-    //               this.$store.dispatch("loginUser", { id: userInfo.id });
-    //               this.$router.push({ path: "index" });
-    //               this.loading = false;
-    //             })
-    //             .catch((error) => {
-    //               this.getVerify();
-    //               Message.error(error.msg);
-    //               this.loading = false;
-    //             });
-    //         } else {
-    //           return false;
-    //         }
-    //       });
-    //     } else {
-    //       this.getVerify();
-    //       this.$message({
-    //         type: "info",
-    //         message: res.msg,
-    //       });
-    //     }
-    //   });
-    // },
   },
 };
 </script>
@@ -328,4 +279,6 @@ a {
     color: #454545;
   }
 }
+
+
 </style>

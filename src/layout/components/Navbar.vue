@@ -14,9 +14,10 @@
       <div class="right-menu">
         <div
           class="avatar-wrapper"
-          style="display: flex; justify-content: center; align-items: center;margin-right: 10px;"
+          style="display: flex; justify-content: center; align-items: center;margin-right: 10px;padding: 0 10px;"
           @click="drawer = true"
         >
+
           <el-avatar
             icon="el-icon-user-solid"
             @click="drawer = true"
@@ -25,21 +26,7 @@
           <!-- <img :src="user.avatar" class="user-avatar"  @click="drawer = true"> -->
           <i class="el-icon-caret-bottom" @click="drawer = true" />
         </div>
-        <!-- <el-dropdown class="avatar-container" trigger="click"> -->
-
-        <!-- <el-dropdown-menu slot="dropdown" class="user-dropdown">
-            <router-link to="/myself">
-              <el-dropdown-item> 个人中心 </el-dropdown-item>
-            </router-link>
-            <router-link to="/changemima">
-              <el-dropdown-item> 修改密码</el-dropdown-item>
-            </router-link>
-
-            <el-dropdown-item divided @click.native="logout">
-              <span style="display: block">Log Out</span>
-            </el-dropdown-item>
-          </el-dropdown-menu> -->
-        <!-- </el-dropdown> -->
+   
       </div>
     </div>
     <el-drawer
@@ -58,12 +45,33 @@
         @open="handleOpen"
         @close="handleClose"
       >
-        <el-menu-item index="2">
-          <span slot="title">我到团队</span>
+        <el-menu-item index="2"  @click="goToTeam">
+          <span slot="title" @click="goToTeam">我到团队</span>
         </el-menu-item>
-        <el-menu-item index="3">
-          <span slot="title">我到账号</span>
+        <el-menu-item index="3" @click="goToAccount">
+          <span slot="title"  @click="goToAccount">我的账号</span>
         </el-menu-item>
+        <el-menu-item @click.native="logout">
+          <span slot="title">退出登录</span>
+        </el-menu-item>
+
+
+
+             <!-- <el-dropdown class="avatar-container" trigger="click"> -->
+
+        <!-- <el-dropdown-menu slot="dropdown" class="user-dropdown">
+            <router-link to="/myself">
+              <el-dropdown-item> 个人中心 </el-dropdown-item>
+            </router-link>
+            <router-link to="/changemima">
+              <el-dropdown-item> 修改密码</el-dropdown-item>
+            </router-link>
+
+            <el-dropdown-item divided @click.native="logout">
+              <span style="display: block">Log Out</span>
+            </el-dropdown-item>
+          </el-dropdown-menu> -->
+        <!-- </el-dropdown> -->
       </el-menu>
     </el-drawer>
     <!-- tags -->
@@ -120,6 +128,15 @@ export default {
     console.log(this.tags);
   },
   methods: {
+      goToAccount() {
+
+       this.$router.push({ name: "account"})
+       this.drawer = false;
+    },
+    goToTeam() {
+       this.$router.push({ name: "team"})
+       this.drawer = false;
+    },
     decode() {
       const token = getToken();
       const user = parseJwt(token);

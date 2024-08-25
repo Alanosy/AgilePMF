@@ -1,12 +1,12 @@
 <template>
   <div class="app-container">
-    <!-- form -->
-    <el-form :inline="true" :model="formInline" class="demo-form-inline">
+    <!-- 查询栏 -->
+    <el-form :inline="true" :model="taskForm" class="demo-form-inline">
       <el-form-item label="项目名称">
-        <el-input v-model="formInline.searchTitle" placeholder="输入项目名称" />
+        <ProjectSelect v-model="taskForm.itemId"></ProjectSelect>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="searchExam">查询</el-button>
+        <el-button type="primary" @click="searchTask">查询</el-button>
       </el-form-item>
       <el-form-item>
         <el-button :title="diaTitle" type="primary" @click="taskVisible = true"
@@ -14,13 +14,18 @@
         >
       </el-form-item>
     </el-form>
+    <!-- 标签页 -->
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane label="全部需求" name="first"></el-tab-pane>
+      <el-tab-pane label="我负责的" name="second"></el-tab-pane>
+      <el-tab-pane label="我提交的" name="third"></el-tab-pane>
+      <el-tab-pane label="我延期的" name="fourth"></el-tab-pane>
+    </el-tabs>
+    <!-- 表格 -->
 
-    <!-- table -->
     <el-table
       :data="data.records"
-      border
-      fit
-      highlight-current-row
+      @row-click="handleRowClick"
       :header-cell-style="{
         background: '#f2f3f4',
         color: '#555',
@@ -29,26 +34,29 @@
       }"
     >
       <el-table-column align="center" type="selection" width="55" />
-      <el-table-column label="序号" align="center" width="80px">
-        <template slot-scope="scope">
-          {{ scope.$index + 1 }}
+      <el-table-column prop="state" label="状态" align="center">
+        <template #default="{ row }">
+          <span :style="{ color: getStateColor(row.state) }">{{
+            getRowState(row.state)
+          }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="name" label="项目名称" align="center" />
-      <el-table-column prop="gradeCount" label="状态" align="center" />
-      <el-table-column prop="code" label="需求" align="center" />
-      <el-table-column prop="userName" label="问题" align="center" />
-      <el-table-column prop="userName" label="任务" align="center" />
-      <el-table-column prop="userName" label="负责人" align="center" />
-      <el-table-column align="center" label="操作">
-        <template slot-scope="{ row }">
-          <el-button
-            type="text"
-            size="small"
-            style="font-size: 14px"
-            @click="updateRow(row)"
-            >管理项目</el-button
-          >
+      <el-table-column prop="taskName" label="任务标题" align="center" />
+      <el-table-column prop="principalName" label="负责人" align="center" />
+      <el-table-column prop="endtime" label="计划完成" align="center">
+        <template v-slot="{ row }">
+          {{ formatDate(row.endtime) }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="finishtime" label="实际完成" align="center">
+        <template v-slot="{ row }">
+          {{ formatDate(row.finishtime) }}
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="updatetime" label="最后更新时间" align="center">
+        <template v-slot="{ row }">
+          {{ formatDate(row.updatetime) }}
         </template>
       </el-table-column>
     </el-table>
@@ -72,6 +80,58 @@
       @close="handleClose"
     >
     </task-dialog>
+  <!-- 详情弹窗 -->
+    <el-dialog :visible.sync="taskDialogVisible" title="任务详情" width="1200px">
+      <div class="reqRowDialog">
+        <div class="reqRowDialog-l">
+          <div class="title-row"></div>
+          <div class="main-content">
+            <div v-html="this.selectedRow.content"></div>
+          </div>
+          <div class="bottom-part">
+            <div class="bottom-left-part">
+              <div style="margin-right: 16px">
+                创建人:{{ this.selectedRow.createName }}
+              </div>
+
+              <div>创建时间: {{ formatDate(this.selectedRow.createtime) }}</div>
+            </div>
+            <div>
+              <el-button size="mini" type="danger" plain @click="delReqFun()"
+                >删除</el-button
+              >
+            </div>
+          </div>
+        </div>
+        <div class="reqRowDialog-r">
+          <el-form>
+            <el-row>
+              <el-form-item label="需求状态">
+                <el-select
+                  v-model="this.selectedRow.state"
+                  placeholder="请选择"
+                  @change="updateStatus(row)"
+                >
+                  <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  >
+                  </el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="指派给">
+                <UserSelect
+                  v-model="this.selectedRow.principalid"
+                  style="width: 200px"
+                ></UserSelect>
+              </el-form-item>
+            </el-row>
+          </el-form>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -79,30 +139,27 @@
 import UserSelect from "@/components/UserSelect";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import TaskDialog from "@/components/TaskDialog/TaskDialog.vue";
-import {getTask} from "@/api/task"
+import { getTask } from "@/api/task";
+import ProjectSelect from "@/components/ItemSelect";
 export default {
   components: {
     Editor,
     Toolbar,
     UserSelect,
-    TaskDialog
+    TaskDialog,
+    ProjectSelect,
   },
   data() {
     return {
       pageNum: 1,
       pageSize: 10,
       data: {},
-      taskform: {},
+      taskForm: {
+        itemId:null,
+      },
       taskVisible: false,
-      addForm: {
-        gradeName: "",
-      },
-      formInline: {
-        searchTitle: "",
-      },
-      form: {
-        gradeName: "",
-      },
+      selectedRow: {},
+      taskDialogVisible: false,
     };
   },
 
@@ -110,57 +167,70 @@ export default {
     this.getTaskFun();
   },
   methods: {
+    // 标签触发函数
+    handleClick(tab, event) {
+      this.getTaskFun(this.pageNum, this.pageSize, null, tab.index);
+    },
+    // 表格触发函数
+    handleRowClick(row) {
+      console.log(1111);
+      this.selectedRow = Object.assign({}, row); // 使用 Object.assign 深拷贝数据
+      this.taskDialogVisible = true;
+    },
+    // 日期格式化
+    formatDate(dateString) {
+      const date = new Date(dateString);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    },
+
     // 分页查询
-    async getTaskFun(pageNum, pageSize, name = null) {
-      const params = { pageNum: pageNum, pageSize: pageSize, name: name };
+    async getTaskFun(pageNum, pageSize, itemId = null, type = null) {
+      const params = { pageNum: pageNum, pageSize: pageSize, itemId: itemId, type: type };
       const res = await getTask(params);
       this.data = res.data;
     },
-    getRowType(priority) {
+    // 获取优先级颜色
+    getStateColor(priority) {
       switch (priority) {
-        case 1: // Emergency
-          return 'danger';
-        case 2: // High
-          return 'warning';
-        case 3: // Medium
-          return 'info';
-        case 4: // Low
-          return 'success';
+        case "0":
+          return "blue";
+        case "1":
+          return "orange";
+        case "2":
+          return "green";
         default:
-          return '';
+          return "black"; 
       }
     },
-    addClass() {
-      const data = { gradeName: this.addForm.gradeName };
-      classAdd(data).then((res) => {
-        if (res.code) {
-          this.addForm.gradeName = "";
-          this.getClassPage(this.pageNum, this.pageSize, this.formInline.searchTitle);
-          this.dialogTableVisible = false;
-          this.$message({
-            type: "success",
-            message: "新增成功!",
-          });
-        } else {
-          this.$message({
-            type: "info",
-            message: res.msg,
-          });
-        }
-      });
+    // 获取优先级字典
+    getRowState(priority) {
+      switch (priority) {
+        case "0": // Emergency
+          return "待办";
+        case "1": // High
+          return "已开始";
+        case "2": // Medium
+          return "已完成";
+        default:
+          return "";
+      }
     },
-    searchExam() {
-      this.getClassPage(this.pageNum, this.pageSize, this.formInline.searchTitle);
+    // 搜索触发函数
+    searchTask() {
+      this.getTaskFun(this.pageNum, this.pageSize, this.taskForm.itemId, null);
     },
     handleSizeChange(val) {
       // 设置每页多少条逻辑
       this.pageSize = val;
-      this.getClassPage(this.pageNum, val);
+      this.getTaskFun(this.pageNum, val, null, null);
     },
     handleCurrentChange(val) {
       // 设置当前页逻辑
       this.pageNum = val;
-      this.getClassPage(val, this.pageSize);
+      this.getTaskFun(val, this.pageSize, null, null);
     },
   },
 };
@@ -175,5 +245,40 @@ export default {
 .bj {
   margin-top: 40px;
   margin-left: 30px;
+}
+.reqRowDialog {
+  display: flex;
+  .reqRowDialog-r {
+    width: 50%;
+  }
+  .reqRowDialog-l {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-right: 1px solid #d2d2d2;
+    padding-right: 16px;
+    margin-right: 16px;
+
+    .title-row {
+      margin: 0;
+      justify-content: flex-start;
+      font-size: 14px;
+    }
+    .main-content {
+      height: 500px !important;
+      overflow-y: hidden !important;
+    }
+    .bottom-part {
+      width: 100%;
+      padding-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      .bottom-left-part {
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
 }
 </style>

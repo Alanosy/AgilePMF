@@ -19,6 +19,13 @@ export function getReq(params) {
 }
 
 
+export function delReq(reqId) {
+  return request({
+    url: `requirements/${reqId}`,
+    method: 'delete',
+  })
+}
+
 export function updateStatusAPI(data) {
   return request({
     url: 'requirements/updatestate',

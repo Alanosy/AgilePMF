@@ -1,36 +1,22 @@
 <template>
+
   <div class="app-container">
     <!-- form -->
-    <el-form :inline="true" :model="IssueForm" class="demo-form-inline">
-      <el-form-item label="项目">
-        <ProjectSelect v-model="IssueForm.itemId"></ProjectSelect>
+    <el-form :inline="true" :model="teamForm" class="demo-form-inline">
+      <el-form-item label="团队名称">
+       <el-input v-model="teamForm.teamName" placeholder="输入团队名称" />
       </el-form-item>
-      <el-form-item label="问题类型">
-        <el-select v-model="IssueForm.type" clearable placeholder="请选择">
-          <el-option
-            v-for="item in IssueType"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          >
-          </el-option>
-        </el-select>
-      </el-form-item>
+
       <el-form-item>
-        <el-button type="primary" @click="searchIssue">查询</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button :title="diaTitle" type="primary" @click="issueVisible = true"
-          >新增</el-button
-        >
+        <el-button type="primary" @click="searchTeam">查询</el-button>
       </el-form-item>
     </el-form>
 
     <!-- table -->
     <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane label="全部问题" name="first"></el-tab-pane>
-      <el-tab-pane label="指派给我的" name="second"></el-tab-pane>
-      <el-tab-pane label="我提交的" name="third"></el-tab-pane>
+      <el-tab-pane label="全部团队" name="first"></el-tab-pane>
+      <el-tab-pane label="我创建的" name="second"></el-tab-pane>
+      <el-tab-pane label="我加入的" name="third"></el-tab-pane>
     </el-tabs>
     <el-table
       :data="data.records"
@@ -43,46 +29,27 @@
       }"
     >
       <el-table-column align="center" type="selection" width="55" />
-      <!-- <el-table-column label="序号" align="center" width="80px">
-        <template slot-scope="scope">
-          {{ scope.$index + 1 }}
-        </template>
-      </el-table-column> -->
-      <el-table-column prop="type" label="问题类型" align="center">
-        <template #default="{ row }">
-          <el-tag :key="row.type" :type="getRowType(row.type)" effect="dark">
-            {{ getIssueType(row.type) }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="issueName" label="问题标题" align="center" />
-      <el-table-column prop="priority" label="优先级" align="center">
-        <template #default="{ row }">
-          <span :style="{ color: getPriorityColor(row.priority) }">{{
-            getRowPriority(row.priority)
-          }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="state" label="状态" align="center">
-        <template v-slot="{ row }">
-          <el-select v-model="row.state" placeholder="请选择" @change="updateStatus(row)">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            >
-            </el-option>
-          </el-select>
-        </template>
-      </el-table-column>
-      <el-table-column prop="principalName" label="负责人" align="center" />
-      <el-table-column prop="createtime" label="创建时间" align="center">
+
+      <el-table-column prop="name" label="团队名称" align="center" />
+
+      <el-table-column prop="code" label="团队代码" align="center" />
+      <el-table-column prop="createtime" label="加入时间" align="center">
         <template v-slot="{ row }">
           {{ formatDate(row.createtime) }}
         </template>
       </el-table-column>
-      <el-table-column prop="itemName" label="关联项目" align="center" />
+      <el-table-column prop="itemName" label="操作" align="center" >
+        <template slot-scope="{ row }">
+          <el-button
+            type="text"
+            size="small"
+            style="font-size: 14px"
+            @click="cutTeam(row)"
+            >切换团队</el-button
+          >
+        </template>
+      </el-table-column>
+
     </el-table>
     <!-- 分页 -->
     <div class="pagination-container">
@@ -96,71 +63,17 @@
         @current-change="handleCurrentChange"
       />
     </div>
-    <!--新增弹窗-->
-    <issue-dialog
-      v-model="issueVisible"
-      title="添加问题"
-      @confirm="handleConfirm"
-      @close="handleClose"
-    >
-    </issue-dialog>
-    <el-dialog :visible.sync="isssueDialogVisible" title="问题详情" width="50%">
-            <div class="reqRowDialog">
-        <div class="reqRowDialog-l">
-          <div class="title-row"></div>
-          <div class="main-content">
-            <div v-html="this.selectedRow.content"></div>
-          </div>
-          <div class="bottom-part">
-            <div class="bottom-left-part">
-              <div style="margin-right:16px;">创建人:{{ this.selectedRow.createName }}</div>
 
-              <div>创建时间: {{ formatDate(this.selectedRow.createtime) }}</div>
-            </div>
-            <div>
-              <el-button size="mini" type="danger" plain @click="delIssueFun(this.selectedRow.id)">删除</el-button>
-            </div>
-          </div>
- 
-        </div>
-        <div class="reqRowDialog-r">
-          <el-form>
-            <el-row>
-              <el-form-item label="问题状态">
-                <el-select
-                  v-model="this.selectedRow.state"
-                  placeholder="请选择"
-                  @change="updateStatus(row)"
-                >
-                  <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  >
-                  </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="指派给">
-                <UserSelect
-                  v-model="this.selectedRow.principalid"
-                  style="width: 200px"
-                ></UserSelect>
-              </el-form-item>
-            </el-row>
-          </el-form>
-        </div>
-      </div>
-    </el-dialog>
   </div>
 </template>
-
 <script>
 import UserSelect from "@/components/UserSelect";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import IssueDialog from "@/components/IssueDialog/IssueDialog.vue";
-import { getIssue, updateStatusAPI ,delIssue} from "@/api/issue";
+import { getIssue, updateStatusAPI } from "@/api/issue";
 import ProjectSelect from "@/components/ItemSelect";
+import { getTeam,cutTeam } from "@/api/team";
+
 export default {
   components: {
     Editor,
@@ -232,25 +145,30 @@ export default {
       ],
       isssueDialogVisible: false,
       selectedRow: {},
+      teamForm:{
+        teamName:"",
+      },
     };
   },
 
   created() {
-    this.getIssueFun();
+    this.getTeamFun();
   },
   methods: {
-    delIssueFun(issueId){
-      delIssue(issueId).then((res) => {
-        if (res.code) {
-          this.$message({
-            type: "success",
-            message: "删除成功!",
-          });
-          this.isssueDialogVisible=false
-        } else {
-          this.$message.error("删除失败，请重试。");
-        }
+    cutTeam(row){
+      const data = {
+        teamId:row.id
+      }
+      cutTeam(data).then((res) => {
       });
+    },
+    async getTeamFun(pageNum, pageSize, teamName = null) {
+      const params = { pageNum: pageNum, pageSize: pageSize, teamName: teamName };
+      const res = await getTeam(params);
+      this.data = res.data;
+    },
+    searchTeam() {
+      this.getTeamFun(this.pageNum, this.pageSize,this.teamForm.teamName);
     },
     updateStatus(row) {
       this.updateStatusInDB(row);
@@ -301,7 +219,7 @@ export default {
     },
     // 标签页
     handleClick(tab, event) {
-      this.getIssueFun(this.pageNum, this.pageSize, null, null, tab.index);
+      getIssueFun(this.pageNum, this.pageSize, null, null, tab.index);
     },
     // 获取类型颜色
     getRowType(type) {
@@ -388,62 +306,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.el-table--border,
-.el-table--group {
-  border: 1px solid #b3b3b3;
-}
-
-.bj {
-  margin-top: 40px;
-  margin-left: 30px;
-}
-.radio-cl {
-  .el-radio {
-    margin-right: 10px;
-  }
-}
-.picker-cl {
-  .el-date-editor.el-input,
-  .el-date-editor.el-input__inner {
-    width: 140px;
-  }
-}
-.reqRowDialog {
-  display: flex;
-  .reqRowDialog-r {
-    width: 50%;
-  }
-  .reqRowDialog-l {
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    border-right: 1px solid #d2d2d2;
-    padding-right: 16px;
-    margin-right: 16px;
-
-    .title-row {
-      margin: 0;
-      justify-content: flex-start;
-      font-size: 14px;
-    }
-    .main-content {
-      height: 500px !important;
-      overflow-y: hidden !important;
-    }
-    .bottom-part {
-      width: 100%;
-      padding-top: 20px;
-      display: flex;
-    justify-content: space-between;
-      .bottom-left-part{
-        display: flex;
-        align-items: center;
-      }
-    }
-
-  }
-}
-</style>

@@ -64,7 +64,7 @@ export function userImport(data) {
 
 export function changePassword(data) {
   return request({
-    url: 'user',
+    url: 'users/updatePw',
     method: 'put',
     data
   })
@@ -105,5 +105,20 @@ export function fetchUsers() {
   return request({
     url: 'users/fetchUsers',
     method: 'get'
+  })
+}
+
+export function getMyselfData() {
+  return request({
+    url: 'users/myself-data',
+    method: 'get'
+  })
+}
+
+export function updateMyselfData(data) {
+  return request({
+    url: 'users/updateMyselfData',
+    method: 'put',
+    data
   })
 }

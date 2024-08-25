@@ -16,3 +16,18 @@ export function getTask(params) {
     params
   })
 }
+
+export function delTask(taskId) {
+  return request({
+    url: `tasks/${taskId}`,
+    method: 'delete',
+  })
+}
+
+
+export function getWeekTask() {
+  return request({
+    url: 'tasks/weekTask',
+    method: 'get',
+  })
+}

@@ -1,31 +1,17 @@
 <template>
-  <div class="main">
+
+ <div class="main">
     <div class="main-head">
       <div>
-        {{ data.name }}
+        <!-- {{ data.name }} -->
       </div>
       <div>
-        <!-- <el-button type="primary">成员管理</el-button> -->
-      </div>
-    </div>
-    <div class="cltop">
-      <div>
-        <div class="module-header">
-          <div class="left-title feature-module-name">项目概览</div>
-          <div class="right-tool">2222</div>
-        </div>
-        <div class="module-content item-2">
-          <el-progress type="circle" :percentage="100" status="success"></el-progress>
-          <el-progress type="circle" :percentage="100" status="success"></el-progress>
-          <el-progress type="circle" :percentage="100" status="success"></el-progress>
-          <el-progress type="circle" :percentage="100" status="success"></el-progress>
-        </div>
       </div>
     </div>
     <div class="cltop">
       <div class="project-need-table-module">
         <div class="module-header">
-          <div class="left-tool">项目需求</div>
+          <div class="left-tool">我负责的需求</div>
           <div class="right-opertaion">
             <div class="ivu-dropdown">
               <div class="ivu-dropdown-rel">
@@ -83,38 +69,71 @@
         </div>
       </div>
     </div>
-    <div class="cltop" id="projectList">
-      <div class="project-problem-table-module">
+   <div class="cltop">
+      <div class="project-need-table-module">
         <div class="module-header">
-          <div class="left-tool">项目文档</div>
+          <div class="left-tool">我创建的需求</div>
           <div class="right-opertaion">
-          <div v-if="showContent" @click="showDoc">
-          <i class="el-icon-edit"></i>
-          <span>修改文稿</span>
-          </div>
-          <div v-if="!showContent" style="disply:flex;">
-          <el-button plain @click="showDoc">取消</el-button>
-  <el-button type="primary" plain @click="saveDoc">保存</el-button>
-          </div>
+            <div class="ivu-dropdown">
+              <div class="ivu-dropdown-rel">
+                <el-button type="primary" @click="requirementVisible = true"
+                  >添加需求</el-button
+                >
+              </div>
+            </div>
           </div>
         </div>
         <div class="module-content">
-         <div  v-if="showContent" v-html="taskform.content"></div>
-          <Editor
-            v-if="!showContent" 
-            style="height: 200px; overflow-y: hidden"
-            v-model="taskform.content"
-            :defaultConfig="editorConfig"
-            :mode="mode"
-            @onCreated="onCreated"
-          />
+        <!-- 需求表格 -->
+          <el-table :data="ReqMeData.records" style="width: 100%">
+            <el-table-column prop="reqname" label="需求名称" width="180"> </el-table-column>
+            <el-table-column prop="state" label="需求状态"> 
+              <template v-slot="{ row }">
+              <el-select v-model="row.state" placeholder="请选择" @change="updateStatus(row)">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+              </template>
+            </el-table-column>
+            <el-table-column prop="priority" label="优先级"> 
+            <template #default="{ row }">
+           <span :style="{ color: getPriorityColor(row.priority) }">{{ getPriorityf(row.priority) }}</span>
+              </template>
+            </el-table-column>
+            </el-table-column>
+            <el-table-column prop="realname" label="负责人"> </el-table-column>
+            <el-table-column prop="endtime" label="计划完成">
+            <template v-slot="{ row }">
+            {{ formatDate(row.endtime) }}
+          </template>
+          </el-table-column>
+       </el-table-column>
+            <el-table-column prop="finishtime" label="实际完成"> 
+                <template v-slot="{ row }">
+            {{ formatDate(row.finishtime) }}
+          </template>
+            </el-table-column>
+          </el-table>
+          <div class="yes-pagination-com" style="justify-content: flex-end">
+            <el-pagination
+              small
+              background="false"
+              layout="prev, pager, next"
+              :total="50"
+            >
+            </el-pagination>
+          </div>
         </div>
       </div>
     </div>
     <div class="cltop content-layer" id="PROBLEM_TABLE">
       <div class="project-problem-table-module">
         <div class="module-header">
-          <div class="left-tool">项目问题</div>
+          <div class="left-tool">我负责的问题</div>
           <div class="right-opertaion">
             <div class="ivu-dropdown">
               <div class="ivu-dropdown-rel">
@@ -179,10 +198,78 @@
         </div>
       </div>
     </div>
+        <div class="cltop content-layer" id="PROBLEM_TABLE">
+      <div class="project-problem-table-module">
+        <div class="module-header">
+          <div class="left-tool">我创建的问题</div>
+          <div class="right-opertaion">
+            <div class="ivu-dropdown">
+              <div class="ivu-dropdown-rel">
+                <el-button type="primary" @click="issueVisible = true"
+                  >添加问题</el-button
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="module-content">
+        <!-- 问题表格 -->
+          <el-table :data="IssueMeData.records" style="width: 100%">
+            <el-table-column prop="type" label="类型" width="180">
+            <template #default="{ row }">
+                  <el-tag
+                    :key="row.type"
+                    :type="getTypeType(row.type)"
+                    effect="dark">
+                    {{ getIssueTypef(row.type) }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+            
+            </el-table-column>
+            <el-table-column prop="issueName" label="问题标题"> </el-table-column>
+            <el-table-column prop="state" label="状态"> 
+           
+              <template v-slot="{ row }">
+                <el-select v-model="row.state" placeholder="请选择" @change="updateStatus(row)">
+                  <el-option
+                    v-for="item in issueOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+              </template>
+            </el-table-column>
+            <el-table-column prop="principalName" label="指派给"> </el-table-column>
+            <el-table-column prop="priority" label="优先级"> 
+             <template #default="{ row }">
+           <span :style="{ color: getPriorityColor(row.priority) }">{{ getPriorityf(row.priority) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="updateTime" label="最后更新">
+            
+              <template v-slot="{ row }">
+            {{ formatDate(row.updateTime) }}
+          </template>
+             </el-table-column>
+          </el-table>
+          <div class="yes-pagination-com" style="justify-content: flex-end">
+            <el-pagination
+              small
+              background="false"
+              layout="prev, pager, next"
+              :total="50"
+            >
+            </el-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="cltop content-layer" id="TASK_TABLE">
       <div class="project-problem-table-module">
         <div class="module-header">
-          <div class="left-tool">项目任务</div>
+          <div class="left-tool">我负责的任务</div>
           <div class="right-opertaion">
             <div class="ivu-dropdown">
               <div class="ivu-dropdown-rel">
@@ -231,70 +318,126 @@
         </div>
       </div>
     </div>
-    <div class="cltop content-layer" id="ATTACHMENT_TABLE">
+        <div class="cltop content-layer" id="TASK_TABLE">
       <div class="project-problem-table-module">
         <div class="module-header">
-          <div class="left-tool">附件</div>
-          <div class="right-opertaion"></div>
-        </div>
-        <div class="module-content" style="display: flex; justify-content: center">
-          <el-upload
-            class="upload-demo"
-            drag
-            action="https://jsonplaceholder.typicode.com/posts/"
-            multiple
-          >
-            <i class="el-icon-upload"></i>
-            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-            <div class="el-upload__tip" slot="tip">
-              只能上传jpg/png文件，且不超过500kb
+          <div class="left-tool">我创建的任务</div>
+          <div class="right-opertaion">
+            <div class="ivu-dropdown">
+              <div class="ivu-dropdown-rel">
+                <el-button type="primary" @click="taskVisible = true">添加任务</el-button>
+              </div>
             </div>
-          </el-upload>
-        </div>
-      </div>
-    </div>
-    <div class="cltop content-layer" id="remark">
-      <div class="project-problem-table-module">
-        <div class="module-header">
-          <div class="left-tool">备注</div>
-          <div class="right-opertaion"></div>
+          </div>
         </div>
         <div class="module-content">
-          <Editor
-            style="height: 200px; overflow-y: hidden"
-            v-model="taskform.content"
-            :defaultConfig="editorConfig"
-            :mode="mode"
-            @onCreated="onCreated"
-          />
+         <!-- 任务表格  -->
+          <el-table :data="TaskMeData.records" style="width: 100%">
+            <el-table-column prop="state" label="状态" width="180"> 
+                 <template #default="{ row }">
+          <span :style="{ color: getTaskColor(row.state) }">{{
+            getTaskf(row.state)
+          }}</span>
+        </template>
+            </el-table-column>
+            <el-table-column prop="taskName" label="任务标题"> </el-table-column>
+            <el-table-column prop="principalName" label="负责人"> </el-table-column>
+            <el-table-column prop="endtime" label="计划完成"> 
+               <template v-slot="{ row }">
+            {{ formatDate(row.endtime) }}
+          </template>
+            </el-table-column>
+            <el-table-column prop="finishtime" label="实际完成"> 
+               <template v-slot="{ row }">
+            {{ formatDate(row.finishtime) }}
+          </template>
+            </el-table-column>
+            <el-table-column prop="updatetime" label="最后更新">
+               <template v-slot="{ row }">
+            {{ formatDate(row.updatetime) }}
+          </template>
+             </el-table-column>
+          </el-table>
+          <div class="yes-pagination-com" style="justify-content: flex-end">
+            <el-pagination
+              small
+              background="false"
+              layout="prev, pager, next"
+              :total="50"
+            >
+            </el-pagination>
+          </div>
         </div>
       </div>
     </div>
+  
+    <div class="cltop content-layer" id="TASK_TABLE">
+      <div class="project-problem-table-module">
+        <div class="module-header">
+          <div class="left-tool">项目</div>
+          <div class="right-opertaion">
+            <div class="ivu-dropdown">
+              <div class="ivu-dropdown-rel">
+                <el-button type="primary" @click="taskVisible = true">添加任务</el-button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="module-content">
+        <!-- 任务表格 -->
+
+          <el-table :data="ItemData.records" style="width: 100%">
+           <el-table-column prop="name" label="项目名称" align="center" />
+            <el-table-column prop="state" label="状态" width="180"> 
+                 <template #default="{ row }">
+              <span :style="{ color: getItemColor(row.state) }">{{
+                getItemf(row.state)
+              }}</span>
+            </template>
+            </el-table-column>
+              <el-table-column prop="reqcount" label="需求" align="center" />
+      <el-table-column prop="issuecount" label="问题" align="center" />
+      <el-table-column prop="taskcount" label="任务" align="center" />
+      <el-table-column prop="username" label="负责人" align="center" />
+          </el-table>
+          <div class="yes-pagination-com" style="justify-content: flex-end">
+            <el-pagination
+              small
+              background="false"
+              layout="prev, pager, next"
+              :total="50"
+            >
+            </el-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+  
     <!-- 需求对话框 -->
-    <req-dialog
+    <!-- <req-dialog
       v-model="requirementVisible"
       title="添加需求"
       @confirm="handleConfirm"
       @close="handleClose"
     >
-    </req-dialog>
+    </req-dialog> -->
     <!-- 添加问题 -->
-    <issue-dialog
+    <!-- <issue-dialog
       v-model="issueVisible"
       title="添加问题"
       @confirm="handleConfirm"
       @close="handleClose"
     >
-    </issue-dialog>
+    </issue-dialog> -->
 
     <!-- 添加任务 -->
-    <task-dialog
+    <!-- <task-dialog
       v-model="taskVisible"
       title="添加任务"
       @confirm="handleConfirm"
       @close="handleClose"
     >
-    </task-dialog>
+    </task-dialog> -->
   </div>
 </template>
 <script>
@@ -310,7 +453,9 @@ import IssueDialog from "@/components/IssueDialog/IssueDialog.vue";
 import {getIssue} from "@/api/issue"
 import {getReq} from "@/api/requirement";
 import {getTask} from "@/api/task"
+import {getItemPage} from "@/api/project"
 export default {
+  name:"workBoard",
   components: {
     UserSelect,
     Editor,
@@ -324,8 +469,12 @@ export default {
       contentFont:"修改文稿",
       showContent:true,
       ReqData:{},
+      ReqMeData:{},
       TaskData:{},
+      TaskMeData:{},
       IssueData:{},
+      IssueMeData:{},
+      ItemData:{},
       editor: null,
       html: "<p>hello</p>",
       toolbarConfig: {},
@@ -415,14 +564,6 @@ export default {
         }],
     };
   },
-  computed: {
-    itemId(){
-      return this.$route.query.data.id
-    },
-    data() {
-      return this.$route.query.data;
-    },
-  },
   mounted() {
     // 模拟 ajax 请求，异步渲染编辑器
     setTimeout(() => {
@@ -432,18 +573,74 @@ export default {
   beforeDestroy() {
     const editor = this.editor;
     if (editor == null) return;
-    editor.destroy(); // 组件销毁时，及时销毁编辑器
+    editor.destroy();
   },
   created(){
     this.getTaskFun();
     this.getReqFun();
     this.getIssueFun();
+    this.getItemPageFun();
   },
   methods: {
-    saveDoc(){},
-    showDoc(){
-      this.showContent = !this.showContent;
+     getItemColor(priority) {
+      switch (priority) {
+        case "1":
+          return "red";
+        case "2":
+          return "orange";
+        case "3":
+          return "green";
+        default:
+          return "black"; // 默认颜色
+      }
     },
+    // 获取优先级字典
+    getItemf(priority) {
+      switch (priority) {
+        case "0": // Emergency
+          return "进行中";
+        case "1": // High
+          return "已完成";
+        case "2": // Medium
+          return "挂起";
+        default:
+          return "";
+      }
+    },
+        // 分页查询
+    async getItemPageFun(pageNum, pageSize, itemName = null,type=null) {
+      const params = { "pageNum": pageNum, "pageSize": pageSize, "itemName": itemName ,"type":type};
+      const res = await getItemPage(params);
+      this.ItemData = res.data;
+    },
+        // 获取需求
+    async getReqFun(pageNum, pageSize, type = null,itemid=null) {
+      const params = { pageNum: pageNum, pageSize: pageSize, type: 1 ,itemId:itemid};
+      const res = await getReq(params);
+      this.ReqData = res.data;
+      const params2 = { pageNum: pageNum, pageSize: pageSize, type: 2 ,itemId:itemid};
+      const res2 = await getReq(params2);
+      this.ReqMeData = res2.data;
+    },
+        // 获取问题
+    async getIssueFun(pageNum, pageSize,itemId=null,issueType=null,type=null) {
+      const params = { pageNum: pageNum, pageSize: pageSize,itemId:itemId,issueType:issueType,type:1};
+      const res = await getIssue(params);
+      this.IssueData = res.data;
+      const params2 = { pageNum: pageNum, pageSize: pageSize,itemId:itemId,issueType:issueType,type:2};
+      const res2 = await getIssue(params2);
+      this.IssueMeData = res2.data;
+    },
+      // 获取任务
+    async getTaskFun(pageNum, pageSize, itemId =null,type = null) {
+      const params = { pageNum: pageNum, pageSize: pageSize, itemId: itemId, type: 1  };
+      const res = await getTask(params);
+      this.TaskData = res.data;
+      const params2 = { pageNum: pageNum, pageSize: pageSize, itemId: itemId, type: 2  };
+      const res2 = await getTask(params2);
+      this.TaskMeData = res2.data;
+    },
+
     formatDate(dateString) {
       const date = new Date(dateString);
       const year = date.getFullYear();
@@ -536,75 +733,8 @@ export default {
           return '';
       }
     },
-   
+ 
   
-    // 获取任务
-    async getTaskFun(pageNum, pageSize, itemId = this.itemId,type = null) {
-      const params = { pageNum: pageNum, pageSize: pageSize, itemId: itemId, type: type  };
-      const res = await getTask(params);
-      this.TaskData = res.data;
-    },
-    // 获取需求
-    async getReqFun(pageNum, pageSize, type = null,itemid=this.itemId) {
-      const params = { pageNum: pageNum, pageSize: pageSize, type: type ,itemId:itemid};
-      const res = await getReq(params);
-      this.ReqData = res.data;
-    },
-
-    // 获取问题
-    async getIssueFun(pageNum, pageSize,itemId=this.itemId,issueType=null,type=null) {
-      const params = { pageNum: pageNum, pageSize: pageSize,itemId:itemId,issueType:issueType,type:type};
-      const res = await getIssue(params);
-      this.IssueData = res.data;
-    },
-    saveTaskFun() {
-      saveTask(this.taskform).then((res) => {
-        if (res.code == 200) {
-          this.$message({
-            message: "保存成功",
-            type: "success",
-          });
-        } else {
-          this.$message({
-            message: "保存失败",
-            type: "error",
-          });
-        }
-      });
-    },
-    saveIssueFun() {
-      saveIssue(this.issueform).then((res) => {
-        if (res.code == 200) {
-          this.$message({
-            message: "保存成功",
-            type: "success",
-          });
-        } else {
-          this.$message({
-            message: "保存失败",
-            type: "error",
-          });
-        }
-      });
-    },
-    saveReqFun() {
-      saveReq(this.reqform).then((res) => {
-        if (res.code == 200) {
-          this.$message({
-            message: "保存成功",
-            type: "success",
-          });
-        } else {
-          this.$message({
-            message: "保存失败",
-            type: "error",
-          });
-        }
-      });
-    },
-    onCreated(editor) {
-      this.editor = Object.seal(editor); // 一定要用 Object.seal() ，否则会报错
-    },
     handleClose(done) {
       this.$confirm("确认关闭？")
         .then((_) => {
@@ -612,13 +742,10 @@ export default {
         })
         .catch((_) => {});
     },
-    onSubmit() {
-      console.log("submit!");
-    },
+
   },
 };
 </script>
-<style src="@wangeditor/editor/dist/css/style.css"></style>
 <style lang="scss" scoped>
 .main {
   display: flex;

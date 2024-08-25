@@ -18,6 +18,14 @@ export function getIssue(params) {
     params
   })
 }
+export function delIssue(issueId) {
+  return request({
+    url: `issues/${issueId}`,
+    method: 'delete',
+
+  })
+}
+
 
 
 
@@ -28,3 +36,4 @@ export function updateStatusAPI(data) {
     data
   })
 }
+

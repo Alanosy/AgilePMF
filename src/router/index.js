@@ -39,7 +39,7 @@ import Layout from '@/layout'
 export const constantRoutes = [
   {
     path: '/login',
-    component: () => import('@/views/login/index'),
+    component: () => import('@/views/login/login'),
     hidden: true
   },
 
@@ -53,6 +53,17 @@ export const constantRoutes = [
     component: () => import('@/views/login/register'),
     hidden: true
   },
+  {
+    path: '/teamChoice',
+    component: () => import('@/views/login/teamChoice'),
+    hidden: true
+  },
+{
+  path: '/hint',
+  component: () => import('@/views/login/hint'),
+  hidden: true
+},
+  // teamChoicehint
 
   {
     path: '/',
@@ -63,7 +74,47 @@ export const constantRoutes = [
       name: 'Dashboard',
       component: () => import('@/views/dashboard/index'),
       meta: { title: '仪表盘', icon: 'el-icon-data-analysis', visible: true }
-    }]
+
+    },
+    
+  ]
+},
+{
+    path: '/team',
+    component: Layout,
+    meta: { requireAuth: true },
+    children: [{
+      path: '/team',
+      name: 'team',
+      component: () => import('@/views/team/index'),
+    },
+    
+  ]
+},
+{
+  path: '/account',
+  component: Layout,
+  meta: { requireAuth: true },
+  children: [{
+    path: '/account',
+    name: 'account',
+    component: () => import('@/views/account/index'),
+  },
+  
+]
+},
+// account
+// {
+//   path: '/team',
+//   name: 'team',
+//   component: () => import('@/views/team/index'),
+
+// },
+
+  {
+    path: '/team',
+    name: 'team',
+    component: () => import('@/views/team/index'),
   },
 
   {
@@ -131,31 +182,34 @@ export const constantRoutes = [
       path: '/workbench',
       name: 'workbench',
       component: () => import('@/views/workbench/index.vue'),
-      meta: { title: '工作台', visible: true, roles: ['admin', 'student'], icon: 'el-icon-document-copy' }
-    }]
+      meta: { title: '工作台', visible: true, roles: ['admin', 'student'], icon: 'el-icon-document-copy' },
+    }
+  ]
   },
-  {
-    path: '/myself',
-    component: Layout,
-    children: [{
-      path: '/myself',
-      name: 'myself',
-      hidden: true,
-      component: () => import('@/views/user/myself'),
-      meta: { title: '个人中心', visible: true, roles: ['teacher', 'admin', 'student'], icon: 'dashboard' }
-    }]
-  },
-  {
-    path: '/changemima',
-    component: Layout,
-    children: [{
-      path: '/changemima',
-      name: 'changemima',
-      hidden: true,
-      component: () => import('@/views/user/updatePassword.vue'),
-      meta: { title: '修改密码', visible: true, roles: ['teacher', 'admin', 'student'], icon: 'dashboard' }
-    }]
-  },
+
+  // /my-tasks
+  // {
+  //   path: '/myself',
+  //   component: Layout,
+  //   children: [{
+  //     path: '/myself',
+  //     name: 'myself',
+  //     hidden: true,
+  //     component: () => import('@/views/user/myself'),
+  //     meta: { title: '个人中心', visible: true, roles: ['teacher', 'admin', 'student'], icon: 'dashboard' }
+  //   }]
+  // },
+  // {
+  //   path: '/changemima',
+  //   component: Layout,
+  //   children: [{
+  //     path: '/changemima',
+  //     name: 'changemima',
+  //     hidden: true,
+  //     component: () => import('@/views/user/updatePassword.vue'),
+  //     meta: { title: '修改密码', visible: true, roles: ['teacher', 'admin', 'student'], icon: 'dashboard' }
+  //   }]
+  // },
   
   
 
