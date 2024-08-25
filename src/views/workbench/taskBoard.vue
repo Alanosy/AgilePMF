@@ -1,46 +1,57 @@
 <template>
   <div class="taskBoard">
-  
     <div class="topStateC">
       <div class="topState">人员</div>
       <div class="topState">
-        <span class="todo" style="color: rgb(82, 108, 255)">待办 (5)</span>
+        <span class="todo" style="color: rgb(82, 108, 255)">待办 ({{getTaskBoardDataInProgressLength(0)}})</span>
       </div>
       <div class="topState">
-        <span class="todo" style="color: rgb(247, 165, 69)">已开始 (1)</span>
+        <span class="todo" style="color: rgb(247, 165, 69)">已开始 ({{getTaskBoardDataInProgressLength(1)}})</span>
       </div>
       <div class="topState">
-        <span class="todo" style="color: rgb(103, 194, 58)"
-          >已完成 (0)</span
-        >
+        <span class="todo" style="color: rgb(103, 194, 58)">已完成 ({{getTaskBoardDataInProgressLength(2)}})</span>
       </div>
     </div>
     <div class="mainContentC">
-      <div class="mainContent">2</div>
-      <div class="mainContent">
-    
-      <div v-for="(item,index) in demo" class="mainContent1" :key="index">
-      
-      <TaskBoardPart ></TaskBoardPart>
-      
+      <div class="mainContent">{{userInfo.realname}}</div>
+      <div class="mainContent" v-for="(item2, index2) in taskBoardData" :key="index2">
+        <div v-for="(item, index) in item2" class="mainContent1" :key="index">
+          <TaskBoardPart :title="item.taskName" :userName="item.pname"></TaskBoardPart>
+        </div>
       </div>
-      </div>
-      <div class="mainContent">
-      </div>
-      <div class="mainContent">5</div>
     </div>
   </div>
 </template>
 <script>
-import TaskBoardPart from '@/components/TaskPart/taskBoardPart.vue'
+import TaskBoardPart from "@/components/TaskPart/taskBoardPart.vue";
+import { getTaskBoard } from "@/api/task";
+import { getToken } from "@/utils/auth";
+import { getTokenInfo } from "@/utils/jwtUtils";
 export default {
-  components: {TaskBoardPart},
+  components: { TaskBoardPart },
   data() {
     return {
-      demo : ["1","2"]
-    }
-  }
-}
+      token:null,
+      userInfo:null,
+      taskBoardData: {},
+      demo: ["1", "2"],
+    };
+  },
+  created() {
+     this.token = getToken();
+    this.userInfo = getTokenInfo();
+    this.getTaskBoardFun();
+  },
+  methods: {
+    getTaskBoardDataInProgressLength(state) {
+      return this.taskBoardData[state].length;
+    },
+    async getTaskBoardFun() {
+      const res = await getTaskBoard();
+      this.taskBoardData = res.data;
+    },
+  },
+};
 </script>
 <style scoped>
 .taskBoard {
@@ -82,7 +93,7 @@ export default {
     }
   }
 }
-.mainContent1{
-  display: flex;  
+.mainContent1 {
+  display: flex;
 }
 </style>

@@ -2,7 +2,7 @@
   <div class="main">
     <div class="main-head">
       <div>
-        {{ data.name || 'N/A' }}
+        {{ data.name }}
       </div>
       <div>
         <!-- <el-button type="primary">成员管理</el-button> -->
@@ -19,29 +19,29 @@
         <div class="module-content item-2">
           <div class="r1block">
             <div>
-              <div>项目名称：{{ OverviewData.itemName || 'N/A' }}</div>
-              <div>创 建 人: {{ OverviewData.userName || 'N/A' }}</div>
-              <div>项目状态: {{ OverviewData.state || 'N/A' }}</div>
+              <div>项目名称：{{ OverviewData.itemName }}</div>
+              <div>创 建 人: {{ OverviewData.userName }}</div>
+              <div>项目状态: {{ OverviewData.state }}</div>
             </div>
           </div>
           <div class="r1block">
             <div>
-              <div>需求数:{{ OverviewData.reqNum || 'N/A' }}</div>
-              <div>已完成:{{ OverviewData.reqfNum || 'N/A' }}</div>
-              <div>完成进度:{{ OverviewData.reqPercent || 'N/A' }}</div>
+              <div>需求数:{{ OverviewData.reqNum }}</div>
+              <div>已完成:{{ OverviewData.reqfNum }}</div>
+              <div>完成进度:{{ OverviewData.reqPercent }}</div>
             </div>
             <div>
-              <el-progress v-if="OverviewData.reqPercent !== undefined && OverviewData.reqPercent >= 0" width="90" type="circle" :percentage="0"></el-progress>
+              <el-progress width="90" type="circle" :percentage="0"></el-progress>
             </div>
           </div>
           <div class="r1block">
             <div>
-             <div>问题数:{{ OverviewData.issueNum || 'N/A' }}</div>
-              <div>已完成:{{ OverviewData.issuefNum || 'N/A' }}</div>
-              <div>完成进度:{{ OverviewData.issuePercent || 'N/A' }}</div>
+              <div>问题数:{{ OverviewData.issueNum }}</div>
+              <div>已完成:{{ OverviewData.issuefNum }}</div>
+              <div>完成进度:{{ OverviewData.issuePercent }}</div>
             </div>
             <div>
-              <el-progress v-if="OverviewData.issuePercent !== undefined && OverviewData.issuePercent >= 0" width="90" type="circle" :percentage="0"></el-progress>
+              <el-progress width="90" type="circle" :percentage="0"></el-progress>
             </div>
           </div>
           <div class="r1block">
@@ -51,7 +51,7 @@
               <div>完成进度:{{ OverviewData.taskPercent }}</div>
             </div>
             <div>
-              <el-progress v-if="OverviewData.taskPercent !== undefined && OverviewData.taskPercent >= 0" width="90" type="circle" :percentage="0"></el-progress>
+              <el-progress width="90" type="circle" :percentage="0"></el-progress>
             </div>
           </div>
         </div>
@@ -73,7 +73,7 @@
         </div>
         <div class="module-content">
           <!-- 需求表格 -->
-          <el-table v-if="ReqData.records" :data="ReqData.records" style="width: 100%">
+          <el-table :data="ReqData.records" style="width: 100%">
             <el-table-column prop="reqname" label="需求名称" width="180">
             </el-table-column>
             <el-table-column prop="state" label="需求状态">
@@ -440,9 +440,7 @@ export default {
       fileList: null,
       showFile: true,
       fileDialogVisible: false,
-      ItemContentData: {
-        content:""
-      },
+      ItemContentData: null,
       OverviewData: {},
       RemarkData: {},
       remark: true,
@@ -637,7 +635,7 @@ export default {
 
       const res = await getFileList(params);
       this.FileListData = res.data;
-      if (this.FileListData.length > 0) {
+      if (FileListData.length > 0) {
         this.hasFiles = true;
       }
     },
@@ -891,9 +889,7 @@ export default {
   align-items: center;
   // min-height: calc(100vh - 64px);
 }
-#remark{
-  margin-bottom: 20px;
-}
+
 .el-radio {
   margin-right: 6px;
 }

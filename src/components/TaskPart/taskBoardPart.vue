@@ -2,20 +2,30 @@
   <div class="task-board-card">
     <div class="task-title">
       <i class="ivu-icon ivu-icon-md-move handler" style="font-size: 14px"></i
-      ><strong>测试111</strong
+      ><strong>{{title}}</strong
       >
       <!-- <i class="iconfont myIcon-edit2 ivu-icon ivu-icon-custom"></i> -->
     </div>
     <div class="task-desc"></div>
     <div class="task-info todo">
-      <div class="task-staff">Alan</div>
-      <div class="task-hour"><span>0.0H</span></div>
+      <div class="task-staff">{{userName}}</div>
+      <div class="task-hour"></span></div>
     </div>
   </div>
 </template>
 <script>
 export default {
     name: "TaskBoardPart",
+      props: {
+    title: {
+      type: String,
+      default: "",
+    },
+    userName: {
+      type: String,
+      default: "",
+    },
+      }
 };
 </script>
 <style scoped>

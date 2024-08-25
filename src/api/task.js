@@ -31,3 +31,11 @@ export function getWeekTask() {
     method: 'get',
   })
 }
+
+export function getTaskBoard() {
+  return request({
+    url: 'tasks/taskBoard',
+    method: 'get',
+  })
+}
+

@@ -3,7 +3,7 @@
  <div class="main">
     <div class="main-head">
       <div>
-        <!-- {{ data.name }} -->
+        工作台
       </div>
       <div>
       </div>
@@ -771,6 +771,7 @@ export default {
   padding: 12px 30px 12px 30px;
   background-color: #f5f7f9;
   display: flex;
+  align-items: center;
   justify-content: space-between;
 }
 .cltop {

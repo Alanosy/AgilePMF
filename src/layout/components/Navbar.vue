@@ -18,12 +18,7 @@
           @click="drawer = true"
         >
 
-          <el-avatar
-            icon="el-icon-user-solid"
-            @click="drawer = true"
-            style="margin-top: 5px"
-          ></el-avatar>
-          <!-- <img :src="user.avatar" class="user-avatar"  @click="drawer = true"> -->
+          <el-avatar icon="el-icon-user-solid"  style="margin-top: 5px"  :src="userInfo.avater"></el-avatar>
           <i class="el-icon-caret-bottom" @click="drawer = true" />
         </div>
    
@@ -34,11 +29,6 @@
       title="项目列表"
       size="18%"
     >
-     <!-- withHeader="false" -->
-      <!-- show-close="false" -->
-      <!-- <el-avatar icon="el-icon-user-solid"></el-avatar>
-      <el-divider></el-divider> -->
-
       <el-menu
         default-active="2"
         class="el-menu-vertical-demo"
@@ -55,50 +45,8 @@
           <span slot="title">退出登录</span>
         </el-menu-item>
 
-
-
-             <!-- <el-dropdown class="avatar-container" trigger="click"> -->
-
-        <!-- <el-dropdown-menu slot="dropdown" class="user-dropdown">
-            <router-link to="/myself">
-              <el-dropdown-item> 个人中心 </el-dropdown-item>
-            </router-link>
-            <router-link to="/changemima">
-              <el-dropdown-item> 修改密码</el-dropdown-item>
-            </router-link>
-
-            <el-dropdown-item divided @click.native="logout">
-              <span style="display: block">Log Out</span>
-            </el-dropdown-item>
-          </el-dropdown-menu> -->
-        <!-- </el-dropdown> -->
       </el-menu>
     </el-drawer>
-    <!-- tags -->
-    <!-- <div
-      style="
-        width: 100%;
-        height: 45px;
-        background-color: write;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-      "
-    >
-      <template v-for="(item,index) in tags">
-        <el-tag
-          v-if="item.title"
-          :key="index"
-          closable
-          :class="{ active: item.checked }"
-          @click="$router.push(item.path)"
-          @close="$store.commit('menu/REMOVE_TAG', item)"
-        >
-          {{ item.title }}
-        </el-tag>
-        
-      </template>
-    </div> -->
   </div>
 </template>
 
@@ -107,7 +55,7 @@ import { mapGetters } from "vuex";
 import Breadcrumb from "@/components/Breadcrumb";
 import Hamburger from "@/components/Hamburger";
 import { getToken } from "@/utils/auth";
-import { parseJwt } from "@/utils/jwtUtils";
+import { parseJwt,getTokenInfo } from "@/utils/jwtUtils";
 export default {
   components: {
     Breadcrumb,
@@ -115,6 +63,8 @@ export default {
   },
   data() {
     return {
+      token:null,
+      userInfo:null,
       drawer: false,
       direction: "rtl",
       user: {},
@@ -124,6 +74,9 @@ export default {
     ...mapGetters(["sidebar", "avatar", "tags"]),
   },
   created() {
+    this.token = getToken();
+    this.userInfo = getTokenInfo();
+    console.log(this.userInfo)
     this.decode();
     console.log(this.tags);
   },
