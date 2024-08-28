@@ -39,3 +39,10 @@ export function getTaskBoard() {
   })
 }
 
+export function getLegacyTask() {
+  return request({
+    url: 'tasks/legacy-task',
+    method: 'get',
+  })
+}
+// /legacy-task

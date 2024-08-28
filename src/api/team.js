@@ -42,3 +42,18 @@ export function cutTeam(data) {
     })
 }
 
+export function getTeamApply(params) {
+    return request({
+        url: 'teams/apply',
+        method: 'get',
+        params
+    })
+}
+
+export function applyCheck(data) {
+    return request({
+        url: 'teams/applyCheck',
+        method: 'post',
+        data
+    })
+}

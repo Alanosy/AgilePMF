@@ -9,17 +9,17 @@
         <el-button type="primary" @click="searchTask">查询</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button :title="diaTitle" type="primary" @click="taskVisible = true"
+        <el-button type="primary" @click="taskVisible = true"
           >新增</el-button
         >
       </el-form-item>
     </el-form>
     <!-- 标签页 -->
-    <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane label="全部需求" name="first"></el-tab-pane>
-      <el-tab-pane label="我负责的" name="second"></el-tab-pane>
-      <el-tab-pane label="我提交的" name="third"></el-tab-pane>
-      <el-tab-pane label="我延期的" name="fourth"></el-tab-pane>
+    <el-tabs v-model="tabData" @tab-click="handleClick">
+      <el-tab-pane label="全部需求" name="0"></el-tab-pane>
+      <el-tab-pane label="我负责的" name="1"></el-tab-pane>
+      <el-tab-pane label="我提交的" name="2"></el-tab-pane>
+      <el-tab-pane label="我延期的" name="3"></el-tab-pane>
     </el-tabs>
     <!-- 表格 -->
 
@@ -76,62 +76,12 @@
     <task-dialog
       v-model="taskVisible"
       title="添加任务"
-      @confirm="handleConfirm"
-      @close="handleClose"
+      :refreshData="getTaskFun"
+  
     >
     </task-dialog>
-  <!-- 详情弹窗 -->
-    <el-dialog :visible.sync="taskDialogVisible" title="任务详情" width="1200px">
-      <div class="reqRowDialog">
-        <div class="reqRowDialog-l">
-          <div class="title-row"></div>
-          <div class="main-content">
-            <div v-html="this.selectedRow.content"></div>
-          </div>
-          <div class="bottom-part">
-            <div class="bottom-left-part">
-              <div style="margin-right: 16px">
-                创建人:{{ this.selectedRow.createName }}
-              </div>
-
-              <div>创建时间: {{ formatDate(this.selectedRow.createtime) }}</div>
-            </div>
-            <div>
-              <el-button size="mini" type="danger" plain @click="delReqFun()"
-                >删除</el-button
-              >
-            </div>
-          </div>
-        </div>
-        <div class="reqRowDialog-r">
-          <el-form>
-            <el-row>
-              <el-form-item label="需求状态">
-                <el-select
-                  v-model="this.selectedRow.state"
-                  placeholder="请选择"
-                  @change="updateStatus(row)"
-                >
-                  <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  >
-                  </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="指派给">
-                <UserSelect
-                  v-model="this.selectedRow.principalid"
-                  style="width: 200px"
-                ></UserSelect>
-              </el-form-item>
-            </el-row>
-          </el-form>
-        </div>
-      </div>
-    </el-dialog>
+    <TaskDetails  v-model="taskDialogVisible" :selectedRow="this.selectedRow"></TaskDetails>
+  
   </div>
 </template>
 
@@ -141,16 +91,20 @@ import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import TaskDialog from "@/components/TaskDialog/TaskDialog.vue";
 import { getTask } from "@/api/task";
 import ProjectSelect from "@/components/ItemSelect";
+import TaskDetails from "@/components/TaskDetails";
 export default {
   components: {
     Editor,
     Toolbar,
     UserSelect,
     TaskDialog,
+    TaskDetails,
     ProjectSelect,
   },
   data() {
     return {
+      options:[],
+      tabData:"0",
       pageNum: 1,
       pageSize: 10,
       data: {},

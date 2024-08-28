@@ -24,7 +24,7 @@
         </div>
         <div class="module-content">
         <!-- 需求表格 -->
-          <el-table :data="ReqData.records" style="width: 100%">
+          <el-table @row-click="handleReqRowClick" :data="ReqData.records" style="width: 100%">
             <el-table-column prop="reqname" label="需求名称" width="180"> </el-table-column>
             <el-table-column prop="state" label="需求状态"> 
               <template v-slot="{ row }">
@@ -85,7 +85,7 @@
         </div>
         <div class="module-content">
         <!-- 需求表格 -->
-          <el-table :data="ReqMeData.records" style="width: 100%">
+          <el-table @row-click="handleReqRowClick" :data="ReqMeData.records" style="width: 100%">
             <el-table-column prop="reqname" label="需求名称" width="180"> </el-table-column>
             <el-table-column prop="state" label="需求状态"> 
               <template v-slot="{ row }">
@@ -146,7 +146,7 @@
         </div>
         <div class="module-content">
         <!-- 问题表格 -->
-          <el-table :data="IssueData.records" style="width: 100%">
+          <el-table @row-click="handleIssueRowClick" :data="IssueData.records" style="width: 100%">
             <el-table-column prop="type" label="类型" width="180">
             <template #default="{ row }">
                   <el-tag
@@ -214,7 +214,7 @@
         </div>
         <div class="module-content">
         <!-- 问题表格 -->
-          <el-table :data="IssueMeData.records" style="width: 100%">
+          <el-table @row-click="handleIssueRowClick"  :data="IssueMeData.records" style="width: 100%">
             <el-table-column prop="type" label="类型" width="180">
             <template #default="{ row }">
                   <el-tag
@@ -280,7 +280,7 @@
         </div>
         <div class="module-content">
         <!-- 任务表格 -->
-          <el-table :data="TaskData.records" style="width: 100%">
+          <el-table @row-click="handleTaskRowClick"  :data="TaskData.records" style="width: 100%">
             <el-table-column prop="state" label="状态" width="180"> 
                  <template #default="{ row }">
           <span :style="{ color: getTaskColor(row.state) }">{{
@@ -332,7 +332,7 @@
         </div>
         <div class="module-content">
          <!-- 任务表格  -->
-          <el-table :data="TaskMeData.records" style="width: 100%">
+          <el-table  @row-click="handleTaskRowClick" :data="TaskMeData.records" style="width: 100%">
             <el-table-column prop="state" label="状态" width="180"> 
                  <template #default="{ row }">
           <span :style="{ color: getTaskColor(row.state) }">{{
@@ -413,31 +413,11 @@
       </div>
     </div>
   
-    <!-- 需求对话框 -->
-    <!-- <req-dialog
-      v-model="requirementVisible"
-      title="添加需求"
-      @confirm="handleConfirm"
-      @close="handleClose"
-    >
-    </req-dialog> -->
-    <!-- 添加问题 -->
-    <!-- <issue-dialog
-      v-model="issueVisible"
-      title="添加问题"
-      @confirm="handleConfirm"
-      @close="handleClose"
-    >
-    </issue-dialog> -->
-
-    <!-- 添加任务 -->
-    <!-- <task-dialog
-      v-model="taskVisible"
-      title="添加任务"
-      @confirm="handleConfirm"
-      @close="handleClose"
-    >
-    </task-dialog> -->
+    <ReqDetails v-model="reqDialogVisible" :selectedRow="this.selectedRow"></ReqDetails>
+    <TaskDetails  v-model="taskDialogVisible" :selectedRow="this.selectedRow"></TaskDetails>
+     <IssueDetails v-model="issueDialogVisible":selectedRow="this.selectedRow"></IssueDetails>
+    
+  
   </div>
 </template>
 <script>
@@ -454,6 +434,9 @@ import {getIssue} from "@/api/issue"
 import {getReq} from "@/api/requirement";
 import {getTask} from "@/api/task"
 import {getItemPage} from "@/api/project"
+import ReqDetails from "@/components/ReqDetails"
+import IssueDetails from "@/components/IssueDetails"
+import TaskDetails from "@/components/TaskDetails";
 export default {
   name:"workBoard",
   components: {
@@ -463,6 +446,9 @@ export default {
     ReqDialog,
     TaskDialog,
     IssueDialog,
+    ReqDetails,
+    IssueDetails,
+    TaskDetails,
   },
   data() {
     return {
@@ -562,6 +548,10 @@ export default {
           label: '挂起',
           value: '7'
         }],
+          reqDialogVisible:false,
+      issueDialogVisible:false,
+      taskDialogVisible:false,
+      selectedRow:{},
     };
   },
   mounted() {
@@ -582,6 +572,21 @@ export default {
     this.getItemPageFun();
   },
   methods: {
+        handleReqRowClick(row) {
+      // 当点击表格行时，设置 dialogVisible 为 true 并将行数据保存到 selectedRow
+      this.selectedRow = Object.assign({}, row); // 使用 Object.assign 深拷贝数据
+      this.reqDialogVisible = true;
+    },
+    handleIssueRowClick(row) {
+      // 当点击表格行时，设置 dialogVisible 为 true 并将行数据保存到 selectedRow
+      this.selectedRow = Object.assign({}, row); // 使用 Object.assign 深拷贝数据
+      this.issueDialogVisible = true;
+    },
+    handleTaskRowClick(row) {
+      // 当点击表格行时，设置 dialogVisible 为 true 并将行数据保存到 selectedRow
+      this.selectedRow = Object.assign({}, row); // 使用 Object.assign 深拷贝数据
+      this.taskDialogVisible = true;
+    },
      getItemColor(priority) {
       switch (priority) {
         case "1":

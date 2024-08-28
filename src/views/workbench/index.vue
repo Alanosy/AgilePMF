@@ -25,11 +25,13 @@
 <script>
 import MyTasks from './workBoard.vue';
 import AssignedTasks from './taskBoard.vue';
+import agileChart from './agileChart.vue';
 
 export default {
   components: {
     MyTasks,
     AssignedTasks,
+    agileChart
   },
   data() {
     return {
@@ -37,6 +39,7 @@ export default {
       items: [
         { title: '我的工作台', component: 'MyTasks' },
         { title: '任务看板', component: 'AssignedTasks' },
+        { title: '敏捷图表', component: 'agileChart' },
 
       ]
     };

@@ -20,17 +20,17 @@
         <el-button type="primary" @click="searchIssue">查询</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button :title="diaTitle" type="primary" @click="issueVisible = true"
+        <el-button type="primary" @click="issueVisible = true"
           >新增</el-button
         >
       </el-form-item>
     </el-form>
 
     <!-- table -->
-    <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane label="全部问题" name="first"></el-tab-pane>
-      <el-tab-pane label="指派给我的" name="second"></el-tab-pane>
-      <el-tab-pane label="我提交的" name="third"></el-tab-pane>
+    <el-tabs v-model="tabData" @tab-click="handleClick">
+      <el-tab-pane label="全部问题" name="0"></el-tab-pane>
+      <el-tab-pane label="指派给我的" name="1"></el-tab-pane>
+      <el-tab-pane label="我提交的" name="2"></el-tab-pane>
     </el-tabs>
     <el-table
       :data="data.records"
@@ -100,58 +100,11 @@
     <issue-dialog
       v-model="issueVisible"
       title="添加问题"
-      @confirm="handleConfirm"
-      @close="handleClose"
+       :refreshData="getIssueFun"
     >
     </issue-dialog>
-    <el-dialog :visible.sync="isssueDialogVisible" title="问题详情" width="50%">
-            <div class="reqRowDialog">
-        <div class="reqRowDialog-l">
-          <div class="title-row"></div>
-          <div class="main-content">
-            <div v-html="this.selectedRow.content"></div>
-          </div>
-          <div class="bottom-part">
-            <div class="bottom-left-part">
-              <div style="margin-right:16px;">创建人:{{ this.selectedRow.createName }}</div>
-
-              <div>创建时间: {{ formatDate(this.selectedRow.createtime) }}</div>
-            </div>
-            <div>
-              <el-button size="mini" type="danger" plain @click="delIssueFun(this.selectedRow.id)">删除</el-button>
-            </div>
-          </div>
- 
-        </div>
-        <div class="reqRowDialog-r">
-          <el-form>
-            <el-row>
-              <el-form-item label="问题状态">
-                <el-select
-                  v-model="this.selectedRow.state"
-                  placeholder="请选择"
-                  @change="updateStatus(row)"
-                >
-                  <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  >
-                  </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="指派给">
-                <UserSelect
-                  v-model="this.selectedRow.principalid"
-                  style="width: 200px"
-                ></UserSelect>
-              </el-form-item>
-            </el-row>
-          </el-form>
-        </div>
-      </div>
-    </el-dialog>
+    <IssueDetails v-model="isssueDialogVisible":selectedRow="this.selectedRow"></IssueDetails>
+    
   </div>
 </template>
 
@@ -161,16 +114,19 @@ import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import IssueDialog from "@/components/IssueDialog/IssueDialog.vue";
 import { getIssue, updateStatusAPI ,delIssue} from "@/api/issue";
 import ProjectSelect from "@/components/ItemSelect";
+import IssueDetails from "@/components/IssueDetails"
 export default {
   components: {
     Editor,
     Toolbar,
     UserSelect,
     IssueDialog,
+    IssueDetails,
     ProjectSelect,
   },
   data() {
     return {
+      tabData:"0",
       pageNum: 1,
       pageSize: 10,
       data: {},

@@ -5,14 +5,14 @@
       label-width="70px"
       label-position="left"
       :inline="true"
-      :model="reqform"
+      :model="reqForm"
       class="demo-form-inline"
     >
       <el-row>
         <el-col span="16">
           <el-form-item label="需求名称">
             <el-input
-              v-model="reqform.name"
+              v-model="reqForm.name"
               placeholder="需求名称"
               style="width: 690px"
             ></el-input>
@@ -20,18 +20,18 @@
         </el-col>
 
         <el-form-item label="指派给">
-          <UserSelect v-model="reqform.userid"></UserSelect>
+          <UserSelect v-model="reqForm.principalId"></UserSelect>
         </el-form-item>
       </el-row>
       <el-row>
         <el-col span="8">
           <el-form-item label="优先级">
             <template>
-              <el-radio-group v-model="reqform.priority" class="radio-cl">
-                <el-radio :label="1">P3低</el-radio>
-                <el-radio :label="2">P2中</el-radio>
-                <el-radio :label="3">P1高</el-radio>
-                <el-radio :label="4">P0紧急</el-radio>
+              <el-radio-group v-model="reqForm.priority" class="radio-cl">
+                <el-radio :label="0">P3低</el-radio>
+                <el-radio :label="1">P2中</el-radio>
+                <el-radio :label="2">P1高</el-radio>
+                <el-radio :label="3">P0紧急</el-radio>
               </el-radio-group>
             </template>
           </el-form-item>
@@ -39,14 +39,14 @@
         <el-col span="8">
           <el-form-item label="计划时间" class="picker-cl">
             <el-date-picker
-              v-model="reqform.startdate"
+              v-model="reqForm.startDate"
               type="date"
               placeholder="开始日期"
             >
             </el-date-picker>
 
             <el-date-picker
-              v-model="reqform.enddate"
+              v-model="reqForm.endDate"
               type="date"
               placeholder="结束日期"
               style="margin-left: 16px"
@@ -54,37 +54,35 @@
             </el-date-picker>
           </el-form-item>
         </el-col>
+         <el-form-item label="关联项目">
+          <ProjectSelect v-model="reqForm.itemId"></ProjectSelect>
+          </el-form-item>
 
-        <el-form-item label="执行计划">
-          <el-select v-model="reqform.region" placeholder="执行计划">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
-          </el-select>
-        </el-form-item>
       </el-row>
       <el-row>
-        <el-col span="8">
+        <!-- <el-col span="8">
           <el-form-item label="需求方">
-           <UserSelect v-model="reqform.requserid"></UserSelect>
-            <!-- <el-select v-model="reqform.region" placeholder="需求方" style="width: 300px">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
-            </el-select> -->
+           <UserSelect v-model="reqForm.requserId"></UserSelect>
+          </el-form-item>
+        </el-col>
+        <el-col span="8"> -->
+         
+        </el-col>
+        <el-col span="8">
+          <el-form-item label="状态">
+             <el-select v-model="reqForm.state" placeholder="请选择">
+              <el-option
+                v-for="item in reqOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
           </el-form-item>
         </el-col>
         <el-col span="8">
-          <el-form-item label="关联产品">
-          <ProjectSelect v-model="reqform.itemId"></ProjectSelect>
-            <!-- <el-select v-model="reqform.region" placeholder="需求方" style="width: 300px">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
-            </el-select> -->
-          </el-form-item>
+         
         </el-col>
-
-        <el-form-item label="关联PRD">
-          <UserSelect v-model="reqform.region"></UserSelect>
-        </el-form-item>
       </el-row>
       <el-row>
         <el-form-item label="任务需求" style="width: 1050px">
@@ -92,16 +90,10 @@
             <div style="border: 1px solid #ccc; width: 975px">
               <Toolbar
                 style="border-bottom: 1px solid #ccc"
-                :editor="editor"
-                :defaultConfig="toolbarConfig"
-                :mode="mode"
               />
               <Editor
                 style="height: 200px; overflow-y: hidden"
-                v-model="reqform.content"
-                :defaultConfig="editorConfig"
-                :mode="mode"
-                @onCreated="onCreated"
+                v-model="reqForm.content"
               />
             </div>
           </template>
@@ -137,20 +129,57 @@ export default {
       type: Boolean,
       default: false,
     },
+    refreshData: {
+      type: Function,
+      default: () => {},
+    },
   },
   data() {
     return {
+      reqOptions:[
+        {
+          label: "需求中",
+          value: "0",
+        },
+        {
+          label: "设计中",
+          value: "1",
+        },
+        {
+          label: "研发中",
+          value: "2",
+        },
+        {
+          label: "待测试",
+          value: "3",
+        },
+        {
+          label: "待发布",
+          value: "4",
+        },
+        {
+          label: "已上线",
+          value: "5",
+        },
+        {
+          label: "已完成",
+          value: "6",
+        },
+        {
+          label: "挂起",
+          value: "7",
+        },
+      ],
       visible: this.value,
-      reqform: {
+      reqForm: {
         name: "",
-        state: 1,
+        state: "0",
         itemId: null,
-        userid: null,
-        priority: 1,
-        requserid:1,
+        principalId: null,
+        priority: 0,
         content: "",
-        startdate: null,
-        enddate: null,
+        startDate: null,
+        endDate: null,
       },
     };
   },
@@ -163,19 +192,36 @@ export default {
     },
   },
   methods: {
+      formatDateToISOString(date) {
+      // 确保输入是一个Date对象
+      if (!(date instanceof Date)) {
+        throw new TypeError('Expected a Date object')
+      }
+
+      // 格式化为ISO 8601格式，注意这里的时区会自动调整为UTC
+      let isoString = date.toISOString()
+
+      // 截取并重新组合字符串，去除毫秒部分并替换T为大写
+      // 这一步是根据你的需求调整，通常ISO 8601格式包含毫秒且T是小写
+      isoString = isoString.split('.')[0].replace('T', 'T')
+
+      return isoString
+    },
     saveReqFun() {
       const data = {
-        name: this.reqform.name,
-        state: this.reqform.state,
-        userid: this.reqform.userid,
-        priority: this.reqform.priority,
-        content: this.reqform.content,
-        startdate: this.reqform.startdate,
-        enddate: this.reqform.enddate,
+        name: this.reqForm.name,
+        state: this.reqForm.state,
+        principalId: this.reqForm.principalId,
+        priority: this.reqForm.priority,
+        content: this.reqForm.content,
+        startDate: this.reqForm.startDate ? this.formatDateToISOString(this.reqForm.startDate) : null,
+        endDate: this.reqForm.endDate ? this.formatDateToISOString(this.reqForm.endDate) : null,
       };
+
       saveReq(data).then((res) => {
         if (res.code) {
           this.visible = false;
+          this.refreshData();
         } else {
           this.$message({
             type: "info",

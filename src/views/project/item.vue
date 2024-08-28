@@ -2,7 +2,7 @@
   <div class="main">
     <div class="main-head">
       <div>
-        {{ data.name || 'N/A' }}
+        {{ data.name || "N/A" }}
       </div>
       <div>
         <!-- <el-button type="primary">成员管理</el-button> -->
@@ -13,35 +13,50 @@
         <div class="module-header">
           <div class="left-title feature-module-name">项目概览</div>
           <div class="right-tool">
-            <span><i class="el-icon-edit" style="font-size: 16px"> </i>编辑</span>
+            <span @click="itemDialogVisible=true"><i class="el-icon-edit" style="font-size: 16px"> </i>编辑</span>
           </div>
         </div>
         <div class="module-content item-2">
           <div class="r1block">
             <div>
-              <div>项目名称：{{ OverviewData.itemName || 'N/A' }}</div>
-              <div>创 建 人: {{ OverviewData.userName || 'N/A' }}</div>
-              <div>项目状态: {{ OverviewData.state || 'N/A' }}</div>
+              <div>项目名称：{{ OverviewData.itemName }}</div>
+              <div>创 建 人: {{ OverviewData.userName }}</div>
+              <div>项目状态: {{ OverviewData.state }}</div>
             </div>
           </div>
           <div class="r1block">
             <div>
-              <div>需求数:{{ OverviewData.reqNum || 'N/A' }}</div>
-              <div>已完成:{{ OverviewData.reqfNum || 'N/A' }}</div>
-              <div>完成进度:{{ OverviewData.reqPercent || 'N/A' }}</div>
+              <div>需求数:{{ OverviewData.reqNum }}</div>
+              <div>已完成:{{ OverviewData.reqfNum }}</div>
+              <div>完成进度:{{ OverviewData.reqPercent }}</div>
             </div>
             <div>
-              <el-progress v-if="OverviewData.reqPercent !== undefined && OverviewData.reqPercent >= 0" width="90" type="circle" :percentage="0"></el-progress>
+              <el-progress
+                v-if="
+                  OverviewData.reqPercent !== undefined && OverviewData.reqPercent >= 0
+                "
+                width="90"
+                type="circle"
+                :percentage="0"
+              ></el-progress>
             </div>
           </div>
           <div class="r1block">
             <div>
-             <div>问题数:{{ OverviewData.issueNum || 'N/A' }}</div>
-              <div>已完成:{{ OverviewData.issuefNum || 'N/A' }}</div>
-              <div>完成进度:{{ OverviewData.issuePercent || 'N/A' }}</div>
+              <div>问题数:{{ OverviewData.issueNum }}</div>
+              <div>已完成:{{ OverviewData.issuefNum }}</div>
+              <div>完成进度:{{ OverviewData.issuePercent }}</div>
             </div>
             <div>
-              <el-progress v-if="OverviewData.issuePercent !== undefined && OverviewData.issuePercent >= 0" width="90" type="circle" :percentage="0"></el-progress>
+              <el-progress
+                v-if="
+                  OverviewData.issuePercent !== undefined &&
+                  OverviewData.issuePercent >= 0
+                "
+                width="90"
+                type="circle"
+                :percentage="0"
+              ></el-progress>
             </div>
           </div>
           <div class="r1block">
@@ -51,7 +66,14 @@
               <div>完成进度:{{ OverviewData.taskPercent }}</div>
             </div>
             <div>
-              <el-progress v-if="OverviewData.taskPercent !== undefined && OverviewData.taskPercent >= 0" width="90" type="circle" :percentage="0"></el-progress>
+              <el-progress
+                v-if="
+                  OverviewData.taskPercent !== undefined && OverviewData.taskPercent >= 0
+                "
+                width="90"
+                type="circle"
+                :percentage="0"
+              ></el-progress>
             </div>
           </div>
         </div>
@@ -73,7 +95,7 @@
         </div>
         <div class="module-content">
           <!-- 需求表格 -->
-          <el-table v-if="ReqData.records" :data="ReqData.records" style="width: 100%">
+          <el-table @row-click="handleReqRowClick" v-if="ReqData.records" :data="ReqData.records" style="width: 100%">
             <el-table-column prop="reqname" label="需求名称" width="180">
             </el-table-column>
             <el-table-column prop="state" label="需求状态">
@@ -114,13 +136,7 @@
             </el-table-column>
           </el-table>
           <div class="yes-pagination-com" style="justify-content: flex-end">
-            <el-pagination
-              small
-              background="false"
-              layout="prev, pager, next"
-              :total="50"
-            >
-            </el-pagination>
+            <el-pagination small layout="prev, pager, next" :total="50"> </el-pagination>
           </div>
         </div>
       </div>
@@ -148,9 +164,6 @@
             v-if="!showContent"
             style="height: 200px; overflow-y: hidden"
             v-model="ItemContentData.content"
-            :defaultConfig="editorConfig"
-            :mode="mode"
-            @onCreated="onCreated"
           />
         </div>
       </div>
@@ -171,7 +184,7 @@
         </div>
         <div class="module-content">
           <!-- 问题表格 -->
-          <el-table :data="IssueData.records" style="width: 100%">
+          <el-table  @row-click="handleIssueRowClick"  :data="IssueData.records" style="width: 100%">
             <el-table-column prop="type" label="类型" width="180">
               <template #default="{ row }">
                 <el-tag :key="row.type" :type="getTypeType(row.type)" effect="dark">
@@ -213,13 +226,7 @@
             </el-table-column>
           </el-table>
           <div class="yes-pagination-com" style="justify-content: flex-end">
-            <el-pagination
-              small
-              background="false"
-              layout="prev, pager, next"
-              :total="50"
-            >
-            </el-pagination>
+            <el-pagination small layout="prev, pager, next" :total="50"> </el-pagination>
           </div>
         </div>
       </div>
@@ -238,7 +245,7 @@
         </div>
         <div class="module-content">
           <!-- 任务表格 -->
-          <el-table :data="TaskData.records" style="width: 100%">
+          <el-table  @row-click="handleTaskRowClick"  :data="TaskData.records" style="width: 100%">
             <el-table-column prop="state" label="状态" width="180">
               <template #default="{ row }">
                 <span :style="{ color: getTaskColor(row.state) }">{{
@@ -265,13 +272,7 @@
             </el-table-column>
           </el-table>
           <div class="yes-pagination-com" style="justify-content: flex-end">
-            <el-pagination
-              small
-              background="false"
-              layout="prev, pager, next"
-              :total="50"
-            >
-            </el-pagination>
+            <el-pagination small layout="prev, pager, next" :total="50"> </el-pagination>
           </div>
         </div>
       </div>
@@ -343,30 +344,12 @@
       </div>
     </div>
     <!-- 需求对话框 -->
-    <req-dialog
-      v-model="requirementVisible"
-      title="添加需求"
-      @confirm="handleConfirm"
-      @close="handleClose"
-    >
-    </req-dialog>
+    <req-dialog v-model="requirementVisible" title="添加需求"> </req-dialog>
     <!-- 添加问题 -->
-    <issue-dialog
-      v-model="issueVisible"
-      title="添加问题"
-      @confirm="handleConfirm"
-      @close="handleClose"
-    >
-    </issue-dialog>
+    <issue-dialog v-model="issueVisible" title="添加问题"> </issue-dialog>
 
     <!-- 添加任务 -->
-    <task-dialog
-      v-model="taskVisible"
-      title="添加任务"
-      @confirm="handleConfirm"
-      @close="handleClose"
-    >
-    </task-dialog>
+    <task-dialog v-model="taskVisible" title="添加任务"> </task-dialog>
     <el-dialog
       title="提示"
       :visible.sync="fileDialogVisible"
@@ -395,6 +378,11 @@
         <el-button type="primary" @click="uploadFileFun()">确 定</el-button>
       </span>
     </el-dialog>
+     <ReqDetails v-model="reqDialogVisible" :selectedRow="this.selectedRow"></ReqDetails>
+    <TaskDetails  v-model="taskDialogVisible" :selectedRow="this.selectedRow"></TaskDetails>
+     <IssueDetails v-model="issueDialogVisible":selectedRow="this.selectedRow"></IssueDetails>
+    <ItemDialog v-model="itemDialogVisible" :updateItemData="this.data"></ItemDialog>
+  
   </div>
 </template>
 <script>
@@ -412,20 +400,29 @@ import { getReq } from "@/api/requirement";
 import { getTask } from "@/api/task";
 import RemarkPart from "@/components/RemarkPart";
 import FilePart from "@/components/FilePart";
+import ReqDetails from "@/components/ReqDetails"
+import IssueDetails from "@/components/IssueDetails"
+import TaskDetails from "@/components/TaskDetails";
+import ItemDialog from "@/components/ItemDialog"
 import {
   getOverviewItem,
   getItemContent,
   updateItemContent,
   saveRemark,
   getRemark,
+  
   uploadFile,
   getFileList,
 } from "@/api/project";
 export default {
   components: {
+    ReqDetails,
     UserSelect,
     Editor,
+    IssueDetails,
     Toolbar,
+    ItemDialog,
+    TaskDetails,
     ReqDialog,
     TaskDialog,
     IssueDialog,
@@ -434,6 +431,8 @@ export default {
   },
   data() {
     return {
+      selectedRow:{},
+      itemDialogVisible:false,
       fileListForm: {
         fileList: null,
       },
@@ -441,7 +440,7 @@ export default {
       showFile: true,
       fileDialogVisible: false,
       ItemContentData: {
-        content:""
+        content: "",
       },
       OverviewData: {},
       RemarkData: {},
@@ -559,6 +558,10 @@ export default {
           value: "7",
         },
       ],
+      reqDialogVisible:false,
+      issueDialogVisible:false,
+      taskDialogVisible:false,
+      selectedRow:{},
     };
   },
   computed: {
@@ -590,6 +593,24 @@ export default {
     this.getFileListFun();
   },
   methods: {
+    updateItemFun(){
+      this.$router.push({ name: "itemsave", query: { data: this.data }})
+    },
+    handleReqRowClick(row) {
+      // 当点击表格行时，设置 dialogVisible 为 true 并将行数据保存到 selectedRow
+      this.selectedRow = Object.assign({}, row); // 使用 Object.assign 深拷贝数据
+      this.reqDialogVisible = true;
+    },
+    handleIssueRowClick(row) {
+      // 当点击表格行时，设置 dialogVisible 为 true 并将行数据保存到 selectedRow
+      this.selectedRow = Object.assign({}, row); // 使用 Object.assign 深拷贝数据
+      this.issueDialogVisible = true;
+    },
+    handleTaskRowClick(row) {
+      // 当点击表格行时，设置 dialogVisible 为 true 并将行数据保存到 selectedRow
+      this.selectedRow = Object.assign({}, row); // 使用 Object.assign 深拷贝数据
+      this.taskDialogVisible = true;
+    },
     uploadFileFun() {
       if (this.fileList.length > 0) {
         const formData = new FormData(); // 创建FormData对象
@@ -690,7 +711,9 @@ export default {
     async getItemContentFun(itemid = this.itemId) {
       const params = { itemId: itemid };
       const res = await getItemContent(params);
-      this.ItemContentData = res.data;
+      if (res.data.content != null) {
+        this.ItemContentData = res.data;
+      }
     },
     showRemark() {
       this.remark = !this.remark;
@@ -891,7 +914,7 @@ export default {
   align-items: center;
   // min-height: calc(100vh - 64px);
 }
-#remark{
+#remark {
   margin-bottom: 20px;
 }
 .el-radio {

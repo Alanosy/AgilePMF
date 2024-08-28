@@ -15,11 +15,12 @@
     <div class="mainContentC">
       <div class="mainContent">{{userInfo.realname}}</div>
       <div class="mainContent" v-for="(item2, index2) in taskBoardData" :key="index2">
-        <div v-for="(item, index) in item2" class="mainContent1" :key="index">
+        <div v-for="(item, index) in item2" class="mainContent1" @click="handleTaskRowClick(item)" :key="index">
           <TaskBoardPart :title="item.taskName" :userName="item.pname"></TaskBoardPart>
         </div>
       </div>
     </div>
+    <TaskDetails  v-model="taskDialogVisible" :selectedRow="this.selectedRow"></TaskDetails>
   </div>
 </template>
 <script>
@@ -27,14 +28,17 @@ import TaskBoardPart from "@/components/TaskPart/taskBoardPart.vue";
 import { getTaskBoard } from "@/api/task";
 import { getToken } from "@/utils/auth";
 import { getTokenInfo } from "@/utils/jwtUtils";
+import TaskDetails from "@/components/TaskDetails";
 export default {
-  components: { TaskBoardPart },
+  components: { TaskBoardPart ,TaskDetails},
   data() {
     return {
       token:null,
       userInfo:null,
       taskBoardData: {},
       demo: ["1", "2"],
+      taskDialogVisible:false,
+      selectedRow:{},
     };
   },
   created() {
@@ -43,6 +47,11 @@ export default {
     this.getTaskBoardFun();
   },
   methods: {
+      handleTaskRowClick(row) {
+      // 当点击表格行时，设置 dialogVisible 为 true 并将行数据保存到 selectedRow
+      this.selectedRow = Object.assign({}, row); // 使用 Object.assign 深拷贝数据
+      this.taskDialogVisible = true;
+    },
     getTaskBoardDataInProgressLength(state) {
       return this.taskBoardData[state].length;
     },

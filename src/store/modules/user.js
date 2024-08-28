@@ -46,19 +46,9 @@ const actions = {
       login(userInfo).then(response => {
         const { data } = response
         if (response.code === 1) {
-          // const info = parseJwt(data)
-          // const roleId = JSON.parse(info.userInfo).roleId
-          // if (roleId === 1) {
-          //   window.localStorage.setItem('roles', 'student')
-          // } else if (roleId === 2) {
-          //   window.localStorage.setItem('roles', 'teacher')
-          // } else if (roleId === 3) {
-          //   window.localStorage.setItem('roles', 'admin')
-          // }
-
-          commit('SET_TOKEN', data)
-          setToken(data)
-          resolve()
+          commit('SET_TOKEN', data.token)
+          setToken(data.token)
+          resolve(data)
         } else {
           reject(response)
         }
@@ -73,13 +63,10 @@ const actions = {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
         const { data } = response
-
         if (!data) {
           return reject('Verification failed, please Login again.')
         }
-
         const { name, avatar } = data
-
         commit('SET_NAME', name)
         commit('SET_AVATAR', avatar)
         resolve(data)

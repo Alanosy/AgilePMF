@@ -158,12 +158,20 @@ export default {
               };
               this.$store
                 .dispatch("user/login", loginData)
-                .then(() => {
+                .then((res) => {
                   this.$store.commit("menu/CLOSE_SIDEBAR");
-                  const userInfo = getTokenInfo();
-                  console.log(userInfo);
-                  this.$store.dispatch("loginUser", { id: userInfo.id });
-                  this.$router.push({ path: "index" });
+                  if(res.teamState==0){
+                    this.$router.push({ path: "teamChoice" });
+                  }
+                  if(res.teamState==1){
+                    this.$router.push({ path: "index" });
+                  }
+                  if(res.teamState==2){
+                    this.$router.push({ path: "hint" });
+                  }
+                  if(res.teamState==3){
+                    this.$router.push({ path: "teamChoice" });
+                  }
                   this.loading = false;
                 })
                 .catch((error) => {

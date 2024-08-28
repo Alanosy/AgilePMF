@@ -20,8 +20,9 @@
               </el-form-item>
             </el-col>
             <el-col span="8">
-              <el-form-item label="项目时间">
+              <el-form-item label="项目时间"   class="picker-cl ">
                 <el-date-picker
+              
                   v-model="ItemForm.startdate"
                   type="date"
                   placeholder="开始日期"
@@ -40,7 +41,7 @@
             <el-col span="8">
               <el-form-item label="项目状态">
                 <template>
-                  <el-radio-group v-model="ItemForm.state">
+                  <el-radio-group class="radio-cl" v-model="ItemForm.state">
                     <el-radio :label="1">立项中</el-radio>
                     <el-radio :label="2">规划中</el-radio>
                     <el-radio :label="3">进行中</el-radio>
@@ -51,17 +52,9 @@
               </el-form-item>
             </el-col>
           </el-row>
-
-          <el-row>
-            <el-col span="8">
-              <el-form-item label="项目负责人">
-                <UserSelect v-model="ItemForm.userid"></UserSelect>
-              </el-form-item>
-            </el-col>
-          </el-row>
         </el-form>
         <div
-          style="display: flex; justify-content: flex-end; margin-right: 30px"
+          style="display: flex; justify-content: flex-end; margin-right: 100px"
         >
           <el-button type="primary" @click="saveItemFun()">保存</el-button>
         </div>
@@ -87,31 +80,16 @@ export default {
       },
     };
   },
+  // computed: {
+  //   data() {
+  //     return this.$route.query.data;
+  //   },
+  // },
+  created(){
+      console.log(this.$route.query.data)
+  },
   methods: {
-    saveItemFun(){
-      const data = {
-        name: this.ItemForm.name,
-        startdate: this.ItemForm.startdate,
-        enddate: this.ItemForm.enddate,
-        state: this.ItemForm.state,
-        userid: this.ItemForm.userid,
-      }
-        saveItem(data).then(res=>{
-            if(res.code){
-                this.$message({
-                    message: '保存成功',
-                    type: 'success'
-                });
-                this.$router.push({ name: "project"});
-            }
-            else{
-               this.$message({
-                    message: res.msg,
-                    type: 'error'
-                });
-            }
-        })
-    }
+
 
   },
 };
@@ -121,5 +99,16 @@ export default {
   padding: 16px 16px;
   background-color: #f5f7f9;
   border-radius: 5px;
+}
+.radio-cl {
+  .el-radio {
+    margin-right: 10px;
+  }
+}
+.picker-cl {
+  .el-date-editor.el-input,
+  .el-date-editor.el-input__inner {
+    width: 150px;
+  }
 }
 </style>

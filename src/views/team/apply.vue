@@ -2,22 +2,21 @@
 
   <div class="app-container">
     <!-- form -->
-    <el-form :inline="true" :model="teamForm" class="demo-form-inline">
+    <el-form :inline="true" :model="perForm" class="demo-form-inline">
       <el-form-item label="团队名称">
-       <el-input v-model="teamForm.teamName" placeholder="输入团队名称" />
+        <el-input v-model="perForm.realName" placeholder="输入项目名称" />
       </el-form-item>
-
       <el-form-item>
-        <el-button type="primary" @click="searchTeam">查询</el-button>
+        <el-button type="primary" @click="searchPer">查询</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button :title="diaTitle" type="primary" @click="issueVisible = true"
+          >新增</el-button
+        >
       </el-form-item>
     </el-form>
 
-    <!-- table -->
-    <el-tabs v-model="tabsValue" @tab-click="handleClick">
-      <el-tab-pane label="全部团队" name="0"></el-tab-pane>
-      <el-tab-pane label="我创建的" name="1"></el-tab-pane>
-      <el-tab-pane label="我加入的" name="2"></el-tab-pane>
-    </el-tabs>
+  
     <el-table
       :data="data.records"
       @row-click="handleRowClick"
@@ -30,30 +29,50 @@
     >
       <el-table-column align="center" type="selection" width="55" />
 
-      <el-table-column prop="name" label="团队名称" align="center" />
-
-      <el-table-column prop="code" label="团队代码" align="center" />
+      <el-table-column prop="realName" label="用户名" align="center" />
+    <el-table-column prop="username" label="账号" align="center" />
+   
       <el-table-column prop="createtime" label="加入时间" align="center">
         <template v-slot="{ row }">
           {{ formatDate(row.createtime) }}
         </template>
       </el-table-column>
-
-      <el-table-column prop="itemName" label="操作" align="center" >
+            <el-table-column prop="itemName" label="操作" align="center" >
         <template slot-scope="{ row }">
           <el-button
-            v-if="row.state!=1"
             type="text"
             size="small"
             style="font-size: 14px"
-            @click="cutTeamFun(row)"
-            >切换团队</el-button
+            @click="applyCheck(row)"
+            >审核</el-button
           >
-          <span>{{ row.state==1 ? '当前团队' : ' ' }}</span>
+         
         </template>
       </el-table-column>
-
     </el-table>
+    <el-dialog
+  title="提示"
+  :visible.sync="applyDialogVisible"
+  width="30%"
+  >
+    <el-form label-width="80px">
+      <el-form-item label="审核状态">
+        <el-select v-model="selectedRow.state" placeholder="请选择">
+          <el-option
+            v-for="item in applyOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <span slot="footer" class="dialog-footer">
+    <el-button @click="applyDialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="applyTeamFun()">确 定</el-button>
+    
+  </span>
+</el-dialog>
     <!-- 分页 -->
     <div class="pagination-container">
       <el-pagination
@@ -75,8 +94,7 @@ import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import IssueDialog from "@/components/IssueDialog/IssueDialog.vue";
 import { getIssue, updateStatusAPI } from "@/api/issue";
 import ProjectSelect from "@/components/ItemSelect";
-import { getTeam,cutTeam } from "@/api/team";
-import {setToken,removeToken} from "@/utils/auth";
+import { getTeamApply,applyCheck } from "@/api/team";
 export default {
   components: {
     Editor,
@@ -87,7 +105,7 @@ export default {
   },
   data() {
     return {
-      tabsValue:"0",
+        applyDialogVisible:false,
       pageNum: 1,
       pageSize: 10,
       data: {},
@@ -117,77 +135,59 @@ export default {
           value: "4",
         },
       ],
-      options: [
+      applyOptions: [
         {
-          label: "待解决",
+          label: "拒绝",
           value: "0",
         },
         {
-          label: "处理中",
+          label: "同意",
           value: "1",
-        },
-        {
-          label: "重开",
-          value: "2",
-        },
-        {
-          label: "已解决",
-          value: "3",
-        },
-        {
-          label: "挂起",
-          value: "4",
-        },
-        {
-          label: "误报",
-          value: "5",
-        },
-        {
-          label: "已关闭",
-          value: "6",
-        },
+        }
       ],
       isssueDialogVisible: false,
       selectedRow: {},
-      teamForm:{
-        teamName:"",
+      perForm:{
+
+        realName:""
       },
     };
   },
 
   created() {
-    this.getTeamFun();
+    this.getTeamApplyFun();
   },
   methods: {
-    cutTeamFun(row){
-
-      const data = {
-        teamId:row.id
-      }
-      cutTeam(data).then((res) => {
-        if (res.code) {
-          this.$message({
-            type: "success",
-            message: res.msg,
-          });
-          removeToken ()
-          setToken(res.data)
-          this.getTeamFun();
-        } else {
-          this.$message({
-            type: "info",
-            message: res.msg,
-          });
+    applyTeamFun(){
+        const data = {
+            userId:this.selectedRow.id,
+            state:this.selectedRow.state,
+            teamId:this.selectedRow.teamId
         }
-      });
+        applyCheck(data).then((res)=>{
+            if(res.code){
+                this.$message({
+                    type:"success",
+                    message:"审核成功"
+                })
+                this.applyDialogVisible = false;
+                this.getTeamApplyFun();
+            }else{
+                this.$message({
+                    type:"error",
+                    message:"审核失败"
+                })
+            }
+        })
     },
-    async getTeamFun(pageNum, pageSize, teamName = null) {
-      const params = { pageNum: pageNum, pageSize: pageSize, teamName: teamName };
-      const res = await getTeam(params);
+    applyCheck(row){
+        this.selectedRow = Object.assign({}, row);
+        this.applyDialogVisible = true;
+    },
+    async getTeamApplyFun(pageNum, pageSize,userName=null) {
+      const params = { pageNum: pageNum, pageSize: pageSize ,userName:userName};
+      const res = await getTeamApply(params);
       this.data = res.data;
-    },
-    searchTeam() {
-      this.getTeamFun(this.pageNum, this.pageSize,this.teamForm.teamName);
     },
     updateStatus(row) {
       this.updateStatusInDB(row);
@@ -238,7 +238,7 @@ export default {
     },
     // 标签页
     handleClick(tab, event) {
-      this.getTeamFun(this.pageNum, this.pageSize,  null, tab.index);
+      getIssueFun(this.pageNum, this.pageSize, null, null, tab.index);
     },
     // 获取类型颜色
     getRowType(type) {
@@ -273,42 +273,32 @@ export default {
       }
     },
     // 获取优先级颜色
-    getPriorityColor(priority) {
+    getRoleColor(priority) {
       switch (priority) {
-        case "1":
-          return "red";
-        case "2":
-          return "orange";
-        case "3":
-          return "green";
+        case 0:
+          return "#909399";
+        case 1:
+          return "#409EFF";
         default:
           return "black"; // 默认颜色
       }
     },
     // 获取优先级字典
-    getRowPriority(priority) {
+    getRole(priority) {
       switch (priority) {
-        case "0": // Emergency
-          return "P0紧急";
-        case "1": // High
-          return "P1高";
-        case "2": // Medium
-          return "P2中";
-        case "3": // Low
-          return "P3低";
+        case 0: // Emergency
+          return "员工";
+        case 1: // High
+          return "管理员";
+
+      
         default:
           return "";
       }
     },
     // 搜索方法
-    searchIssue() {
-      this.getIssueFun(
-        this.pageNum,
-        this.pageSize,
-        this.IssueForm.itemId,
-        this.IssueForm.type,
-        null
-      );
+    searchPer() {
+      this.getTeamUserFun(this.pageNum, this.pageSize,this.perForm.realName);
     },
     // 每页多少
     handleSizeChange(val) {

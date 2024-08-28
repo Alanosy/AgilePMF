@@ -16,14 +16,20 @@
       </div>
       <div class="main-content-content">
         <div class="r30">{{ userInfo.realname }}</div>
-
-        <div class="r31" v-for="(inta, index) in weekTaskData" :key="index">
-          <div v-for="(item, index2) in weekTaskData[index]" :key="index2">
-            <TaskPart
-              :title="item.taskName"
-              :itemName="item.itemName"
-              :isLeaveOver="item.isLeaveOver"
-            ></TaskPart>
+        <div class="r31">
+          <div class="r31c" v-for="(inta, index) in weekTaskData" :key="index">
+            <div
+              class="WeekTask"
+              v-for="(item, index2) in weekTaskData[index]" 
+              @click="handleRowClick(item)"
+              :key="index2"
+            >
+              <TaskPart
+                :title="item.taskName"
+                :itemName="item.itemName"
+                :isLeaveOver="item.isLeaveOver"
+              ></TaskPart>
+            </div>
           </div>
         </div>
       </div>
@@ -31,19 +37,18 @@
     <div class="main-foot">
       <div class="main-foot-title">
         <div class="foot-title">遗留任务</div>
-        <div class="foot-title-right" v-for="(item0, index0) in weekDates" :key="index0">
-        </div>
+        <div
+          class="foot-title-right"
+          v-for="(item0, index0) in weekDates"
+          :key="index0"
+        ></div>
       </div>
-      <!-- <div class="main-foot-title">
-        <div class="foot-title">遗留任务</div>
-      </div> -->
       <div class="main-foot-content">
         <div class="r40">{{ userInfo.realname }}</div>
 
-        <div class="r41" v-for="(inta, index) in weekTaskData" :key="index">
-          <div v-for="(item, index2) in weekTaskData[index]" :key="index2">
+        <div class="r41">
+          <div class="LegacyBlock" v-for="(item, index2) in LegacyTaskData" @click="handleRowClick(item)" :key="index2">
             <TaskPart
-              v-if="item.isLeaveOver == 2 && item.isLeaveOver == 1"
               :title="item.taskName"
               :itemName="item.itemName"
               :isLeaveOver="item.isLeaveOver"
@@ -52,24 +57,30 @@
         </div>
       </div>
     </div>
+    <TaskDetails v-model="taskDialogVisible" :selectedRow="this.selectedRow"></TaskDetails>
   </div>
 </template>
 
 <script>
 import TaskPart from "@/components/TaskPart/index.vue";
 import { getDashBoardCount } from "@/api/dashboard";
-import { getWeekTask } from "@/api/task";
+import { getWeekTask, getLegacyTask } from "@/api/task";
 import { getToken } from "@/utils/auth";
 import { getTokenInfo } from "@/utils/jwtUtils";
+import TaskDetails from "@/components/TaskDetails";
 export default {
   name: "Index",
   components: {
     TaskPart,
+    TaskDetails,
   },
   data() {
     return {
       data: {},
+      taskDialogVisible:false,
       weekTaskData: {},
+      selectedRow:{},
+      LegacyTaskData: {},
       taskList: [
         {
           title: "待办任务",
@@ -102,9 +113,16 @@ export default {
     this.getDashBoardFun();
   },
   methods: {
+    handleRowClick(row) {
+      console.log(1111);
+      this.selectedRow = Object.assign({}, row); // 使用 Object.assign 深拷贝数据
+      this.taskDialogVisible = true;
+    },
     async getWeekTaskFun() {
       const res = await getWeekTask();
       this.weekTaskData = res.data;
+      const res2 = await getLegacyTask();
+      this.LegacyTaskData = res2.data;
     },
     async getDashBoardFun() {
       const res = await getDashBoardCount();
@@ -118,7 +136,6 @@ export default {
       for (let i = 0; i < 7; i++) {
         const date = new Date(firstDayOfWeek.getTime() + i * 24 * 60 * 60 * 1000);
         const formattedDate = this.formatDate(date);
-        console.log(formattedDate);
         weekDates.push(formattedDate);
       }
 
@@ -141,13 +158,13 @@ export default {
 
 <style scoped>
 .app-container {
-  height: 100vh;
+  min-height: 100vh;
   background-color: #fbfbfd;
 }
 .main-content {
   width: 100%;
   /* height: 60vh; */
-  margin-top: 30px;
+  margin-top: 40px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12);
   .main-content-title {
     display: flex;
@@ -177,17 +194,21 @@ export default {
     justify-content: space-between;
     .r31 {
       background: #fff;
-      width: 23%;
-      min-height: 300px;
-      height: 100%;
-      /* padding: 30px; */
-      border-left: 1px solid #e7e7e7;
+      min-height: 350px;
+      width: 91%;
+      display: flex;
+      .r31c {
+        width: calc(100% / 7); /* 每个项目的宽度为容器宽度的1/7 */
+        border-left: 1px solid #e7e7e7;
+        .WeekTask {
+        }
+      }
     }
     .r30 {
       background: #f2f3f4;
-      width: 15%;
-      min-height: 300px;
-      height: 100%;
+      width: 9%;
+      min-height: 350px;
+      /* height: 100%; */
       /* padding: 30px; */
       border-left: 1px solid #e7e7e7;
       display: flex;
@@ -200,7 +221,7 @@ export default {
 .main-foot {
   width: 100%;
   /* height: 60vh; */
-  margin-top: 30px;
+  margin-top: 40px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12);
   .main-content-title {
     display: flex;
@@ -209,7 +230,7 @@ export default {
     .r21 {
       height: 48px;
       background: #f2f3f4;
-      width: 23%;
+      width: calc(100% / 7);
       height: 48px;
       line-height: 48px;
       text-align: center;
@@ -232,7 +253,7 @@ export default {
     /* justify-content: space-between; */
     height: 48px;
     .foot-title-right {
-       height: 48px;
+      height: 48px;
       background: #fff;
       width: 23%;
       height: 48px;
@@ -240,13 +261,12 @@ export default {
       text-align: center;
     }
     .foot-title {
-       height: 48px;
+      height: 48px;
       background: #fff;
       width: 15%;
       height: 48px;
       line-height: 48px;
       text-align: center;
-
     }
   }
   .main-foot-content {
@@ -254,20 +274,25 @@ export default {
     justify-content: space-between;
     .r41 {
       background: #fff;
-      width: 23%;
+      width: 91%;
       min-height: 250px;
-      height: 100%;
-      /* padding: 30px; */
-      /* border-left: 1px solid #e7e7e7; */
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      .LegacyBlock {
+        flex: 0 0 auto; /* 不让项目伸缩 */
+        width: calc(100% / 7); /* 每个项目的宽度为容器宽度的1/7 */
+        border-left: 1px solid #e7e7e7;
+      }
     }
     .r40 {
       background: #f2f3f4;
-      width: 15%;
-      min-height: 250px;
-      height: 100%;
+      width: 9%;
+      min-height: 290px;
+      /* height: 100%; */
       /* padding: 30px; */
       border-left: 1px solid #e7e7e7;
-        display: flex;
+      display: flex;
       justify-content: center;
       padding-top: 20px;
     }
@@ -276,14 +301,13 @@ export default {
 .main-top {
   display: flex;
   justify-content: space-between;
-  .r1block{
+  .r1block {
     background: #fff;
     border-radius: 16px;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12);
     width: 23%;
     height: 100px;
     line-height: 100px;
-    /* text-align: center; */
     padding-left: 30px;
   }
 }

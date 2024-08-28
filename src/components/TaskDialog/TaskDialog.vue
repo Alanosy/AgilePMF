@@ -5,27 +5,27 @@
         label-width="70px"
         label-position="left"
         :inline="true"
-        :model="taskform"
+        :model="taskForm"
         class="demo-form-inline"
       >
         <el-row>
-          <el-col span="12">
+          <el-col span="16">
             <el-form-item label="任务标题">
               <el-input
-                v-model="taskform.name"
+                v-model="taskForm.name"
                 placeholder="任务标题"
-                style="width: 450px"
+               style="width: 690px"
               ></el-input>
             </el-form-item>
           </el-col>
-          <el-col span="12">
+          <el-col span="8">
             <el-form-item label="指派给">
-              <UserSelect v-model="taskform.userid" style="width: 450px"></UserSelect>
+              <UserSelect v-model="taskForm.principalId" ></UserSelect>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col span="6">
+          <!-- <el-col span="6">
             <el-form-item label="工时评估">
               <el-input
                 v-model="taskform.user"
@@ -33,71 +33,51 @@
                 style="width: 150px"
               ></el-input>
             </el-form-item>
-          </el-col>
-          <el-col span="6">
-            <el-form-item label="任务类型">
-              <el-select
-                v-model="taskform.type"
-                placeholder="任务类型"
-                style="width: 150px"
-              >
-                <el-option label="区域一" value="shanghai"></el-option>
-                <el-option label="区域二" value="beijing"></el-option>
-              </el-select>
+          </el-col> -->
+          <el-col span="8">
+            <el-form-item label="状态">
+              <template>
+                <el-radio-group v-model="taskForm.state" class="radio-cl">
+                  <el-radio :label="0">待办</el-radio>
+                  <el-radio :label="1">已开始</el-radio>
+                  <el-radio :label="2">已完成</el-radio>
+                </el-radio-group>
+              </template>
             </el-form-item>
           </el-col>
-          <el-col span="12">
-            <el-form-item label="计划时间">
-              <el-select
-                v-model="taskform.region"
-                placeholder="计划时间"
-                style="width: 450px"
+           <el-col span="8">
+            <el-form-item label="计划时间" class="picker-cl">
+              <el-date-picker
+                v-model="taskForm.startDate"
+                type="date"
+                placeholder="开始日期"
               >
-                <el-option label="区域一" value="shanghai"></el-option>
-                <el-option label="区域二" value="beijing"></el-option>
-              </el-select>
+              </el-date-picker>
+
+              <el-date-picker
+                v-model="taskForm.endDate"
+                type="date"
+                placeholder="结束日期"
+                style="margin-left: 16px"
+              >
+              </el-date-picker>
             </el-form-item>
-          </el-col>
+          </el-col>  
+            <el-form-item label="关联项目">
+          <ProjectSelect v-model="taskForm.itemId"></ProjectSelect>
+          </el-form-item>       
         </el-row>
-        <el-row>
-          <el-col span="12">
-            <el-form-item label="任务状态">
-              <el-input
-                v-model="taskform.state"
-                placeholder="审批人"
-                style="width: 450px"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col span="12">
-            <el-form-item label="关联问题">
-              <el-select
-                v-model="taskform.region"
-                placeholder="活动区域"
-                style="width: 450px"
-              >
-                <el-option label="区域一" value="shanghai"></el-option>
-                <el-option label="区域二" value="beijing"></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
+       
         <el-row>
           <el-form-item label="任务需求" style="width: 1130px">
             <template>
               <div style="border: 1px solid #ccc; width: 1035px">
                 <Toolbar
                   style="border-bottom: 1px solid #ccc"
-                  :editor="editor"
-                  :defaultConfig="toolbarConfig"
-                  :mode="mode"
                 />
                 <Editor
                   style="height: 200px; overflow-y: hidden"
-                  v-model="taskform.content"
-                  :defaultConfig="editorConfig"
-                  :mode="mode"
-                  @onCreated="onCreated"
+                  v-model="taskForm.content"
                 />
               </div>
             </template>
@@ -116,11 +96,13 @@
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import UserSelect from "@/components/UserSelect";
 import {saveTask } from "@/api/task"
+import ProjectSelect from "@/components/ItemSelect";
 export default {
 components: {
     Editor,
     Toolbar,
-    UserSelect
+    UserSelect,
+    ProjectSelect
   },
   props: {
     title: {
@@ -131,16 +113,22 @@ components: {
       type: Boolean,
       default: false,
     },
+     refreshData: {
+      type: Function,
+      default: () => {},
+    },
   },
   data() {
     return {
       visible: this.value,
-      taskform: {
+      taskForm: {
         content: "",
         name: "",
-        userid: 1,
-        priority: 1,
-        type: 1,
+        itemId:null,
+        principalId: 1,
+        state: 1,
+        startDate:null,
+        endDate:null,
       },
     };
   },
@@ -153,17 +141,37 @@ components: {
     },
   },
   methods: {
+         formatDateToISOString(date) {
+      // 确保输入是一个Date对象
+      if (!(date instanceof Date)) {
+        throw new TypeError('Expected a Date object')
+      }
+
+      // 格式化为ISO 8601格式，注意这里的时区会自动调整为UTC
+      let isoString = date.toISOString()
+
+      // 截取并重新组合字符串，去除毫秒部分并替换T为大写
+      // 这一步是根据你的需求调整，通常ISO 8601格式包含毫秒且T是小写
+      isoString = isoString.split('.')[0].replace('T', 'T')
+
+      return isoString
+    },
       saveTaskFun() {
       const data = {
-        content: this.taskform.content,
-        name: this.taskform.name,
-        userid: this.taskform.userid,
-        priority: this.taskform.priority,
-        type: this.taskform.type,
+        content: this.taskForm.content,
+        name: this.taskForm.name,
+        principalId: this.taskForm.principalId,
+        priority: this.taskForm.priority,
+        state: this.taskForm.state,
+        startDate: this.formatDateToISOString(this.taskForm.startDate),
+        endDate: this.formatDateToISOString(this.taskForm.endDate),
+        itemId: this.taskForm.itemId,
       };
       saveTask(data).then((res) => {
         if (res.code) {
+          this.refreshData();
           this.visible = false;
+
         } else {
           this.$message({
             type: "info",

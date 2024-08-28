@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <!-- form -->
+    <!-- 搜索区 -->
     <el-form :inline="true" :model="reqform" class="demo-form-inline">
       <el-form-item label="项目名称">
         <ProjectSelect v-model="reqform.itemId"></ProjectSelect>
@@ -10,19 +10,19 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button :title="diaTitle" type="primary" @click="requirementVisible = true"
+        <el-button type="primary" @click="requirementVisible = true"
           >新增</el-button
         >
       </el-form-item>
     </el-form>
-
+    <!-- 标签页 -->
     <el-tabs v-model="tabValue" @tab-click="handleClick">
       <el-tab-pane label="全部需求" name="0"></el-tab-pane>
       <el-tab-pane label="我负责的" name="1"></el-tab-pane>
       <el-tab-pane label="我提交的" name="2"></el-tab-pane>
       <el-tab-pane label="我延期的" name="3"></el-tab-pane>
     </el-tabs>
-    <!-- table -->
+    <!-- 需求表格 -->
     <el-table
       :data="data.records"
       @row-click="handleRowClick"
@@ -34,11 +34,6 @@
       }"
     >
       <el-table-column align="center" type="selection" width="55" />
-      <!-- <el-table-column label="序号" align="center" width="80px">
-        <template slot-scope="scope">
-          {{ scope.$index + 1 }}
-        </template>
-      </el-table-column> -->
       <el-table-column prop="priority" label="优先级" align="center">
         <template #default="{ row }">
           <span :style="{ color: getRowType(row.priority) }">{{
@@ -52,7 +47,7 @@
         <template v-slot="{ row }">
           <el-select v-model="row.state" placeholder="请选择" @change="updateStatus(row)">
             <el-option
-              v-for="item in options"
+              v-for="item in reqOptions"
               :key="item.value"
               :label="item.label"
               :value="item.value"
@@ -72,17 +67,6 @@
         </template>
       </el-table-column>
       <el-table-column prop="realname" label="负责人" align="center" />
-      <!-- <el-table-column align="center" label="操作">
-        <template slot-scope="{ row }">
-          <el-button
-            type="text"
-            size="small"
-            style="font-size: 14px"
-            @click="updateRow(row)"
-            >管理项目</el-button
-          >
-        </template>
-      </el-table-column> -->
     </el-table>
     <!-- 分页 -->
     <div class="pagination-container">
@@ -97,72 +81,15 @@
       />
     </div>
     <!--新增弹窗-->
-
     <req-dialog
       v-model="requirementVisible"
       title="添加需求"
-      @confirm="handleConfirm"
-      @close="handleClose"
+      :refreshData="getReqFun"
     >
     </req-dialog>
-    <el-dialog :visible.sync="reqDialogVisible" title="需求详情" width="1200px">
-      <div class="reqRowDialog">
-        <div class="reqRowDialog-l">
-          <div class="title-row"></div>
-          <div class="main-content">
-            <el-tabs v-model="activeName" @tab-click="handleClick">
-              <el-tab-pane label="需求文档" name="first">
-                <div v-html="this.selectedRow.content"></div>
-              </el-tab-pane>
-              <el-tab-pane label="配置管理" name="second">配置管理</el-tab-pane>
-              <el-tab-pane label="角色管理" name="third">角色管理</el-tab-pane>
-              <el-tab-pane label="定时任务补偿" name="fourth">定时任务补偿</el-tab-pane>
-            </el-tabs>
-          </div>
-          <div class="bottom-part">
-            <div class="bottom-left-part">
-              <div style="margin-right: 16px">
-                创建人:{{ this.selectedRow.createName }}
-              </div>
-
-              <div>创建时间: {{ formatDate(this.selectedRow.createtime) }}</div>
-            </div>
-            <div>
-              <el-button size="mini" type="danger" plain @click="delReqFun()"
-                >删除</el-button
-              >
-            </div>
-          </div>
-        </div>
-        <div class="reqRowDialog-r">
-          <el-form>
-            <el-row>
-              <el-form-item label="需求状态">
-                <el-select
-                  v-model="this.selectedRow.state"
-                  placeholder="请选择"
-                  @change="updateStatus(row)"
-                >
-                  <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  >
-                  </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="指派给">
-                <UserSelect
-                  v-model="this.selectedRow.principalid"
-                  style="width: 200px"
-                ></UserSelect>
-              </el-form-item>
-            </el-row>
-          </el-form>
-        </div>
-      </div>
-    </el-dialog>
+    <!-- 详情弹窗 -->
+    <ReqDetails v-model="reqDialogVisible" :selectedRow="this.selectedRow"></ReqDetails>
+   
   </div>
 </template>
 
@@ -172,18 +99,19 @@ import UserSelect from "@/components/UserSelect";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import { getReq, updateStatusAPI, delReq } from "@/api/requirement";
 import ProjectSelect from "@/components/ItemSelect";
+import ReqDetails from "@/components/ReqDetails"
 export default {
   components: {
     Editor,
     Toolbar,
     UserSelect,
     ReqDialog,
+    ReqDetails,
     ProjectSelect,
   },
   data() {
     return {
       tabValue:"",
-      activeName: "second",
       pageNum: 1,
       pageSize: 10,
       data: {},
@@ -191,8 +119,7 @@ export default {
         itemId: null,
       },
       requirementVisible: false,
-
-      options: [
+      reqOptions: [
         {
           label: "需求中",
           value: "0",
@@ -236,25 +163,10 @@ export default {
     this.getReqFun();
   },
   methods: {
-    delReqFun() {
-      delReq(this.selectedRow.id).then((res) => {
-        if (res.code) {
-          this.$message({
-            type: "success",
-            message: "删除成功!",
-          });
-          this.reqDialogVisible = false;
-        } else {
-          this.$message.error("删除失败，请重试。");
-        }
-      });
-    },
     updateStatus(row) {
       this.updateStatusInDB(row);
     },
     handleRowClick(row) {
-      console.log(1111);
-      // 当点击表格行时，设置 dialogVisible 为 true 并将行数据保存到 selectedRow
       this.selectedRow = Object.assign({}, row); // 使用 Object.assign 深拷贝数据
       this.reqDialogVisible = true;
     },
@@ -285,7 +197,6 @@ export default {
       return `${year}-${month}-${day}`;
     },
     handleClick(tab, event) {
-      console.log(tab.index);
       this.getReqFun(this.pageNum, this.pageSize, tab.index, null);
     },
     // 分页查询

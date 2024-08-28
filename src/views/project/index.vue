@@ -10,9 +10,8 @@
       </el-form-item>
       <el-form-item>
         <el-button
-          :title="diaTitle"
           type="primary"
-          @click="openItem(null,'itemsave')"
+          @click="itemDialogVisible=true"
           >新增</el-button
         >
       </el-form-item>
@@ -59,16 +58,21 @@
         @current-change="handleCurrentChange"
       />
     </div>
+    <ItemDialog v-model="itemDialogVisible" :selectedRow="this.selectedRow"></ItemDialog>
   </div>
 </template>
 
 <script>
 import { getItemPage } from "@/api/project"
+import ItemDialog from "@/components/ItemDialog"
 export default {
   components: {
+    ItemDialog
   },
   data() {
     return {
+      selectedRow:{},
+      itemDialogVisible:false,
       tabValue:"0",
       pageNum: 1,
       pageSize: 10,
