@@ -46,3 +46,11 @@ export function getLegacyTask() {
   })
 }
 // /legacy-task
+// burndown-chart
+export function getBurndownChart(params) {
+  return request({
+    url: 'tasks/burndown-chart',
+    method: 'get',
+    params
+  })
+}

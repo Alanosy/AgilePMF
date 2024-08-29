@@ -3,9 +3,9 @@
 
 <!---->
     <div class="top-tool">
-    <div>项目：</div><div><ProjectSelect></ProjectSelect></div>
+    <div>项目：</div><div><ProjectSelect v-model="itemId"></ProjectSelect></div>
     </div>
-    <div class="charts"> <burnDownChart></burnDownChart> </div>
+    <div class="charts"> <burnDownChart :itemId="itemId"></burnDownChart> </div>
 </div>
 </template>
 <script>
@@ -16,6 +16,11 @@ export default {
     components:{
         burnDownChart,
         ProjectSelect
+    },
+    data(){
+        return{
+            itemId:null,
+        }
     }
 }
 
