@@ -10,9 +10,7 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button type="primary" @click="requirementVisible = true"
-          >新增</el-button
-        >
+        <el-button type="primary" @click="requirementVisible = true">新增</el-button>
       </el-form-item>
     </el-form>
     <!-- 标签页 -->
@@ -81,15 +79,14 @@
       />
     </div>
     <!--新增弹窗-->
-    <req-dialog
-      v-model="requirementVisible"
-      title="添加需求"
-      :refreshData="getReqFun"
-    >
+    <req-dialog v-model="requirementVisible" title="添加需求" :refreshData="getReqFun">
     </req-dialog>
     <!-- 详情弹窗 -->
-    <ReqDetails v-model="reqDialogVisible" :selectedRow="this.selectedRow"></ReqDetails>
-   
+    <ReqDetails
+      v-model="reqDialogVisible"
+      :selectedRow="this.selectedRow"
+      :refreshData="getReqFun"
+    ></ReqDetails>
   </div>
 </template>
 
@@ -99,7 +96,7 @@ import UserSelect from "@/components/UserSelect";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import { getReq, updateStatusAPI, delReq } from "@/api/requirement";
 import ProjectSelect from "@/components/ItemSelect";
-import ReqDetails from "@/components/ReqDetails"
+import ReqDetails from "@/components/ReqDetails";
 export default {
   components: {
     Editor,
@@ -111,7 +108,7 @@ export default {
   },
   data() {
     return {
-      tabValue:"",
+      tabValue: "",
       pageNum: 1,
       pageSize: 10,
       data: {},
@@ -207,11 +204,11 @@ export default {
     },
     getRowType(priority) {
       switch (priority) {
-        case 1:
+        case 3:
           return "red";
         case 2:
           return "orange";
-        case 3:
+        case 1:
           return "green";
         default:
           return "black"; // 默认颜色
@@ -219,13 +216,13 @@ export default {
     },
     getRowPriority(priority) {
       switch (priority) {
-        case 1: // Emergency
+        case 3: // Emergency
           return "P0紧急";
         case 2: // High
           return "P1高";
-        case 3: // Medium
+        case 1: // Medium
           return "P2中";
-        case 4: // Low
+        case 0: // Low
           return "P3低";
         default:
           return "";

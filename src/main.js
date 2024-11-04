@@ -22,28 +22,28 @@ import 'quill/dist/quill.snow.css' // snow theme
 import 'quill/dist/quill.bubble.css' // bubble theme
 
 // 定义白名单
-// Vue.prototype.$echarts = echarts
-// const whiteList = ['/login', '/register']
+Vue.prototype.$echarts = echarts
+const whiteList = ['/login', '/register','/404','/teamChoice','/hint','/teamChoicehint']
 
-// router.beforeEach((to, from, next) => {
-//   // 获取token，这里以从localStorage获取为例
-//   const token = getToken('Authorization')
+router.beforeEach((to, from, next) => {
+  // 获取token，这里以从localStorage获取为例
+  const token = getToken('Authorization')
 
-//   // 检查当前访问的路由是否在白名单内
-//   if (whiteList.includes(to.path)) {
-//     // 如果在白名单内，不需要token，直接允许访问
-//     next()
-//   } else {
-//     // 如果不在白名单内，则需要检查token
-//     if (!token) {
-//       // 如果没有token，则跳转到登录页面，并携带前往的完整路径以便登录后重定向
-//       next({ path: '/login', query: { redirect: to.fullPath }})
-//     } else {
-//       // 如果有token，则允许访问
-//       next()
-//     }
-//   }
-// })
+  // 检查当前访问的路由是否在白名单内
+  if (whiteList.includes(to.path)) {
+    // 如果在白名单内，不需要token，直接允许访问
+    next()
+  } else {
+    // 如果不在白名单内，则需要检查token
+    if (!token) {
+      // 如果没有token，则跳转到登录页面，并携带前往的完整路径以便登录后重定向
+      next({ path: '/login', query: { redirect: to.fullPath }})
+    } else {
+      // 如果有token，则允许访问
+      next()
+    }
+  }
+})
 
 axios.defaults.withCredentials = true
 

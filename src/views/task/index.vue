@@ -9,9 +9,7 @@
         <el-button type="primary" @click="searchTask">查询</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="taskVisible = true"
-          >新增</el-button
-        >
+        <el-button type="primary" @click="taskVisible = true">新增</el-button>
       </el-form-item>
     </el-form>
     <!-- 标签页 -->
@@ -50,13 +48,13 @@
       </el-table-column>
       <el-table-column prop="finishtime" label="实际完成" align="center">
         <template v-slot="{ row }">
-          {{ formatDate(row.finishtime) }}
+          <span v-if="row.finishtime"> {{ formatDate(row.finishtime) }}</span>
         </template>
       </el-table-column>
 
       <el-table-column prop="updatetime" label="最后更新时间" align="center">
         <template v-slot="{ row }">
-          {{ formatDate(row.updatetime) }}
+          <span v-if="row.updatetime"> {{ formatDate(row.updatetime) }}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -73,15 +71,13 @@
       />
     </div>
     <!--新增弹窗-->
-    <task-dialog
-      v-model="taskVisible"
-      title="添加任务"
-      :refreshData="getTaskFun"
-  
-    >
+    <task-dialog v-model="taskVisible" title="添加任务" :refreshData="getTaskFun">
     </task-dialog>
-    <TaskDetails  v-model="taskDialogVisible" :selectedRow="this.selectedRow"></TaskDetails>
-  
+    <TaskDetails
+      v-model="taskDialogVisible"
+      :selectedRow="this.selectedRow"
+      :refreshData="getTaskFun"
+    ></TaskDetails>
   </div>
 </template>
 
@@ -103,13 +99,13 @@ export default {
   },
   data() {
     return {
-      options:[],
-      tabData:"0",
+      options: [],
+      tabData: "0",
       pageNum: 1,
       pageSize: 10,
       data: {},
       taskForm: {
-        itemId:null,
+        itemId: null,
       },
       taskVisible: false,
       selectedRow: {},
@@ -156,7 +152,7 @@ export default {
         case "2":
           return "green";
         default:
-          return "black"; 
+          return "black";
       }
     },
     // 获取优先级字典

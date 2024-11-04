@@ -54,3 +54,11 @@ export function getBurndownChart(params) {
     params
   })
 }
+
+export function updateTask(taskId,data) {
+  return request({
+    url: `tasks/${taskId}`,
+    method: 'put',
+    data
+  })
+}

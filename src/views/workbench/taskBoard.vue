@@ -3,24 +3,39 @@
     <div class="topStateC">
       <div class="topState">人员</div>
       <div class="topState">
-        <span class="todo" style="color: rgb(82, 108, 255)">待办 ({{getTaskBoardDataInProgressLength(0)}})</span>
+        <span class="todo" style="color: rgb(82, 108, 255)"
+          >待办 ({{ getTaskBoardDataInProgressLength(0) }})</span
+        >
       </div>
       <div class="topState">
-        <span class="todo" style="color: rgb(247, 165, 69)">已开始 ({{getTaskBoardDataInProgressLength(1)}})</span>
+        <span class="todo" style="color: rgb(247, 165, 69)"
+          >已开始 ({{ getTaskBoardDataInProgressLength(1) }})</span
+        >
       </div>
       <div class="topState">
-        <span class="todo" style="color: rgb(103, 194, 58)">已完成 ({{getTaskBoardDataInProgressLength(2)}})</span>
+        <span class="todo" style="color: rgb(103, 194, 58)"
+          >已完成 ({{ getTaskBoardDataInProgressLength(2) }})</span
+        >
       </div>
     </div>
     <div class="mainContentC">
-      <div class="mainContent">{{userInfo.realname}}</div>
+      <div class="mainContent">{{ userInfo.realname }}</div>
       <div class="mainContent" v-for="(item2, index2) in taskBoardData" :key="index2">
-        <div v-for="(item, index) in item2" class="mainContent1" @click="handleTaskRowClick(item)" :key="index">
+        <div
+          v-for="(item, index) in item2"
+          class="mainContent1"
+          @click="handleTaskRowClick(item)"
+          :key="index"
+        >
           <TaskBoardPart :title="item.taskName" :userName="item.pname"></TaskBoardPart>
         </div>
       </div>
     </div>
-    <TaskDetails  v-model="taskDialogVisible" :selectedRow="this.selectedRow"></TaskDetails>
+    <TaskDetails
+      v-model="taskDialogVisible"
+      :selectedRow="this.selectedRow"
+      :refreshData="getTaskBoardFun"
+    ></TaskDetails>
   </div>
 </template>
 <script>
@@ -30,24 +45,24 @@ import { getToken } from "@/utils/auth";
 import { getTokenInfo } from "@/utils/jwtUtils";
 import TaskDetails from "@/components/TaskDetails";
 export default {
-  components: { TaskBoardPart ,TaskDetails},
+  components: { TaskBoardPart, TaskDetails },
   data() {
     return {
-      token:null,
-      userInfo:null,
+      token: null,
+      userInfo: null,
       taskBoardData: {},
       demo: ["1", "2"],
-      taskDialogVisible:false,
-      selectedRow:{},
+      taskDialogVisible: false,
+      selectedRow: {},
     };
   },
   created() {
-     this.token = getToken();
+    this.token = getToken();
     this.userInfo = getTokenInfo();
     this.getTaskBoardFun();
   },
   methods: {
-      handleTaskRowClick(row) {
+    handleTaskRowClick(row) {
       // 当点击表格行时，设置 dialogVisible 为 true 并将行数据保存到 selectedRow
       this.selectedRow = Object.assign({}, row); // 使用 Object.assign 深拷贝数据
       this.taskDialogVisible = true;

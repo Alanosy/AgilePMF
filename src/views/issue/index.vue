@@ -20,9 +20,7 @@
         <el-button type="primary" @click="searchIssue">查询</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="issueVisible = true"
-          >新增</el-button
-        >
+        <el-button type="primary" @click="issueVisible = true">新增</el-button>
       </el-form-item>
     </el-form>
 
@@ -97,14 +95,13 @@
       />
     </div>
     <!--新增弹窗-->
-    <issue-dialog
-      v-model="issueVisible"
-      title="添加问题"
-       :refreshData="getIssueFun"
-    >
+    <issue-dialog v-model="issueVisible" title="添加问题" :refreshData="getIssueFun">
     </issue-dialog>
-    <IssueDetails v-model="isssueDialogVisible":selectedRow="this.selectedRow"></IssueDetails>
-    
+    <IssueDetails
+      v-model="isssueDialogVisible"
+      :selectedRow="this.selectedRow"
+      :refreshData="getIssueFun"
+    ></IssueDetails>
   </div>
 </template>
 
@@ -112,9 +109,9 @@
 import UserSelect from "@/components/UserSelect";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import IssueDialog from "@/components/IssueDialog/IssueDialog.vue";
-import { getIssue, updateStatusAPI ,delIssue} from "@/api/issue";
+import { getIssue, updateStatusAPI, delIssue } from "@/api/issue";
 import ProjectSelect from "@/components/ItemSelect";
-import IssueDetails from "@/components/IssueDetails"
+import IssueDetails from "@/components/IssueDetails";
 export default {
   components: {
     Editor,
@@ -126,7 +123,7 @@ export default {
   },
   data() {
     return {
-      tabData:"0",
+      tabData: "0",
       pageNum: 1,
       pageSize: 10,
       data: {},
@@ -195,14 +192,14 @@ export default {
     this.getIssueFun();
   },
   methods: {
-    delIssueFun(issueId){
+    delIssueFun(issueId) {
       delIssue(issueId).then((res) => {
         if (res.code) {
           this.$message({
             type: "success",
             message: "删除成功!",
           });
-          this.isssueDialogVisible=false
+          this.isssueDialogVisible = false;
         } else {
           this.$message.error("删除失败，请重试。");
         }
@@ -393,13 +390,12 @@ export default {
       width: 100%;
       padding-top: 20px;
       display: flex;
-    justify-content: space-between;
-      .bottom-left-part{
+      justify-content: space-between;
+      .bottom-left-part {
         display: flex;
         align-items: center;
       }
     }
-
   }
 }
 </style>

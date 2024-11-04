@@ -7,7 +7,6 @@
           <el-tabs v-model="tabsc" @tab-click="handleClick">
             <el-tab-pane label="项目文档" name="0">
               <div v-html="selectedRow.content"></div
-              
             ></el-tab-pane>
           </el-tabs>
         </div>
@@ -18,7 +17,7 @@
             <div>创建时间: {{ formatDate(selectedRow.createtime) }}</div>
           </div>
           <div>
-            <el-button size="mini" type="danger" plain @click="delTaskFun()"
+            <el-button size="mini" type="danger" plain @click="delIssueFun()"
               >删除</el-button
             >
           </div>
@@ -31,7 +30,7 @@
               <el-select
                 v-model="selectedRow.state"
                 placeholder="请选择"
-                @change="updateStatus(row)"
+                @change="updateIssueFun(selectedRow)"
               >
                 <el-option
                   v-for="item in stateOptions"
@@ -47,7 +46,6 @@
                 v-model="selectedRow.principalid"
                 style="width: 200px"
               ></UserSelect>
-            
             </el-form-item>
           </el-row>
         </el-form>
@@ -61,7 +59,7 @@ import { saveReq } from "@/api/requirement";
 import UserSelect from "@/components/UserSelect";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import ProjectSelect from "@/components/ItemSelect";
-import {delTask} from '@/api/task'
+import { delIssue, updateIssue } from "@/api/issue";
 export default {
   components: {
     Editor,
@@ -92,24 +90,37 @@ export default {
     return {
       visible: this.value,
 
-     stateOptions: [
+      stateOptions: [
         {
-          label: "待办",
+          label: "待解决",
           value: "0",
         },
         {
-          label: "已开始",
+          label: "处理中",
           value: "1",
         },
         {
-          label: "已完成",
+          label: "重开",
           value: "2",
         },
-
-        
-        
-        ],
-      tabsc:'0',
+        {
+          label: "已解决",
+          value: "3",
+        },
+        {
+          label: "挂起",
+          value: "4",
+        },
+        {
+          label: "误报",
+          value: "5",
+        },
+        {
+          label: "已关闭",
+          value: "6",
+        },
+      ],
+      tabsc: "0",
     };
   },
   watch: {
@@ -129,20 +140,33 @@ export default {
       const day = String(date.getDate()).padStart(2, "0");
       return `${year}-${month}-${day}`;
     },
-    delTaskFun() {
-      delTask(this.selectedRow.id).then((res) => {
+    updateIssueFun(row) {
+      const data = {
+        state: row.state,
+      };
+      updateIssue(row.id, data).then((res) => {
+        this.$message({
+          type: "success",
+          message: "修改状态成功!",
+        });
+        this.refreshData();
+      });
+    },
+    delIssueFun() {
+      delIssue(this.selectedRow.id).then((res) => {
         if (res.code) {
           this.$message({
             type: "success",
             message: "删除成功!",
           });
+          this.refreshData();
           this.visible = false;
         } else {
           this.$message.error("删除失败，请重试。");
         }
       });
     },
-  }
+  },
 };
 </script>
 <style scoped>

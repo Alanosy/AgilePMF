@@ -60,12 +60,6 @@
 
       </el-row>
       <el-row>
-        <!-- <el-col span="8">
-          <el-form-item label="需求方">
-           <UserSelect v-model="reqForm.requserId"></UserSelect>
-          </el-form-item>
-        </el-col>
-        <el-col span="8"> -->
          
         </el-col>
         <el-col span="8">
@@ -85,7 +79,7 @@
         </el-col>
       </el-row>
       <el-row>
-        <el-form-item label="任务需求" style="width: 1050px">
+        <el-form-item label="需求文档" style="width: 1050px">
           <template>
             <div style="border: 1px solid #ccc; width: 975px">
               <Toolbar
@@ -213,6 +207,7 @@ export default {
         state: this.reqForm.state,
         principalId: this.reqForm.principalId,
         priority: this.reqForm.priority,
+        itemId: this.reqForm.itemId,
         content: this.reqForm.content,
         startDate: this.reqForm.startDate ? this.formatDateToISOString(this.reqForm.startDate) : null,
         endDate: this.reqForm.endDate ? this.formatDateToISOString(this.reqForm.endDate) : null,
@@ -220,11 +215,11 @@ export default {
 
       saveReq(data).then((res) => {
         if (res.code) {
-          this.visible = false;
           this.refreshData();
+          this.visible = false;
         } else {
           this.$message({
-            type: "info",
+            type: "",
             message: res.msg,
           });
         }

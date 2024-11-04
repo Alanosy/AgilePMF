@@ -103,13 +103,6 @@ export const constantRoutes = [
   
 ]
 },
-// account
-// {
-//   path: '/team',
-//   name: 'team',
-//   component: () => import('@/views/team/index'),
-
-// },
 
   {
     path: '/team',

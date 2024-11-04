@@ -34,3 +34,10 @@ export function updateStatusAPI(data) {
   })
 }
 
+export function updateReq(reqId,data) {
+  return request({
+    url: `requirements/${reqId}`,
+    method: 'put',
+    data
+  })
+}

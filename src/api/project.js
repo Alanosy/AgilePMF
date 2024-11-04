@@ -8,6 +8,14 @@ export function getItemPage(params) {
   })
 }
 
+export function updateItem(data) {
+  return request({
+    url: 'projects',
+    method: 'put',
+    data
+  })
+}
+
 export function saveItem(data) {
   return request({
     url: 'projects',
@@ -71,5 +79,13 @@ export function getFileList(params) {
     url: 'projects/file-list',
     method: 'get',
     params
+  })
+}
+
+export function closeItem(data) {
+  return request({
+    url: 'projects/close',
+    method: 'put',
+    data
   })
 }

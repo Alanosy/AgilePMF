@@ -47,7 +47,11 @@ export default {
     data: {
       type: Object,
       default: () => ({})
-    }
+    },
+    userId: {
+      type: String,
+      default: "",
+    },
   },
   data() {
     return {
@@ -66,15 +70,21 @@ export default {
       this.$emit('input', val);
     }
   },
+  computed: {
+    uid() {
+      return this.$route.query.data;
+    },
+  },
   methods: {
     getVerify() {
       this.$refs.captchaImg.src = `/api/auths/captcha?${Math.random()}`;
     },
     saveTeamFun() {
-      verifyCode(this.vcode).then((resv) => {
+      verifyCode(this.saveTeamForm.vcode).then((resv) => {
         if (resv.code) {
           const data = {
             teamName: this.saveTeamForm.teamName,
+            uid: this.userId,
           };
           saveTeam(data).then((res) => {
             if (res.code) {

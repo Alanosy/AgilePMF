@@ -3,7 +3,12 @@
     <div class="login-wrapper">
       <div class="header">团队配置</div>
       <div class="form-wrapper">
-        <component :is="currentComponent"  v-model="data" @switch-back="switchBack"></component>
+        <component
+          :is="currentComponent"
+          v-model="data"
+          @switch-back="switchBack"
+          :userId="data.userId"
+        ></component>
 
         <div v-if="showButtons" class="btnGroup">
           <el-button class="addTeam btn2" type="success" @click="addTeamFun()"
@@ -13,7 +18,6 @@
             >创建团队</el-button
           >
         </div>
-
       </div>
     </div>
   </div>
@@ -51,7 +55,6 @@ export default {
       }
     };
     return {
-      data:{},
       showButtons: true,
       currentComponent: "MyTasks",
       items: [
@@ -88,9 +91,13 @@ export default {
       immediate: true,
     },
   },
+  computed: {
+    data() {
+      return this.$route.query.data;
+    },
+  },
   created() {
-    this.data = this.$route.query.data
-
+    console.log("data",this.data)
   },
   mounted() {
     this.$on("switch-back", this.switchBack);

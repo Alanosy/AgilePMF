@@ -96,7 +96,7 @@ import { validUsername } from "@/utils/validate";
 import { setToken } from "@/utils/auth";
 import axios from "axios";
 import { getTokenInfo } from "@/utils/jwtUtils";
-import { verifyCode } from "@/api/user";
+import { verifyCode, register } from "@/api/user";
 import { Message } from "element-ui";
 import { Encrypt } from "@/utils/Secret";
 export default {
@@ -120,20 +120,22 @@ export default {
       registerForm: {
         username: "",
         password: "",
-        checkedPassword: '' ,
-        vcode:""
+        checkedPassword: "",
+        vcode: "",
       },
       code: "",
       registerRules: {
         username: [{ required: true, trigger: "blur", validator: validateUsername }],
         password: [{ required: true, trigger: "blur", validator: validatePassword }],
-        checkedPassword: [{ required: true, trigger: "blur", validator: validateUsername }],
+        checkedPassword: [
+          { required: true, trigger: "blur", validator: validateUsername },
+        ],
         vcode: [{ required: true, trigger: "blur", validator: validatePassword }],
       },
       loading: false,
       passwordType: "password",
       redirect: undefined,
-       checkedPasswordType: 'password',
+      checkedPasswordType: "password",
     };
   },
   watch: {
@@ -144,8 +146,7 @@ export default {
       immediate: true,
     },
   },
-  created() {
-  },
+  created() {},
   methods: {
     getVerify() {
       this.$refs.captchaImg.src = `/api/auths/captcha?${Math.random()}`;
@@ -160,40 +161,42 @@ export default {
         this.$refs.password.focus();
       });
     },
-     registerFn() {
+    registerFn() {
       verifyCode(this.registerForm.vcode).then((res) => {
         if (res.code) {
           const registerData = {
-            userName: this.registerForm.userName,
-            realName: this.registerForm.realName,
+            userName: this.registerForm.username,
+            realName: this.registerForm.username,
             password: this.registerForm.password,
-            checkedPassword: this.registerForm.checkedPassword
-          }
+            checkedPassword: this.registerForm.checkedPassword,
+          };
           register(registerData).then((res2) => {
             if (res2.code) {
               Message({
                 message: res2.msg,
-                type: 'success',
-                duration: 5 * 1000
-              })
-              this.$router.push({ path: '/teamChoice' ,query:{data:res2.data}})
+                type: "success",
+                duration: 5 * 1000,
+              });
+              console.log(res2)
+              console.log(res2.data)
+              this.$router.push({ path: "/teamChoice", query: { data: res2.data} });
             } else {
-              this.getVerify()
+              this.getVerify();
               Message({
                 message: res2.msg,
-                type: 'error',
-                duration: 5 * 1000
-              })
+                type: "error",
+                duration: 5 * 1000,
+              });
             }
-          })
+          });
         } else {
-          this.getVerify()
+          this.getVerify();
           this.$message({
-            type: 'info',
-            message: res.msg
-          })
+            type: "info",
+            message: res.msg,
+          });
         }
-      })
+      });
     },
     // handleLogin() {
     //   verifyCode(this.code).then((res) => {

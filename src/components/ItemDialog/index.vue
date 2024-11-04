@@ -64,7 +64,7 @@
 <script>
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import UserSelect from "@/components/UserSelect";
-import { saveTask } from "@/api/task";
+import { saveItem, updateItem } from "@/api/project";
 import ProjectSelect from "@/components/ItemSelect";
 export default {
   components: {
@@ -115,20 +115,6 @@ export default {
       this.visible = val;
     },
 
-    //   updateItemData: {
-    //   handler(newVal) {
-    //     this.fillFormFromUpdateData(newVal);
-    //   },
-    //   deep: true
-    // },
-    // updateItemData(val){
-    //   console.log(val)
-
-    // this.ItemForm.name = val.name
-    // this.ItemForm.startdate = this.formatDateToISOString(val.startdate)
-    // this.ItemForm.enddate = this.formatDateToISOString(val.enddate)
-    // this.ItemForm.state = val.state
-    // },
     visible(val) {
       this.$emit("input", val);
     },
@@ -136,19 +122,12 @@ export default {
   methods: {
     fillFormFromUpdateData(newVal) {
       console.log(newVal);
-      if(newVal){
-
+      if (newVal) {
         this.ItemForm.name = newVal.name;
         this.ItemForm.startdate = newVal.startdate;
         this.ItemForm.enddate = newVal.enddate;
         this.ItemForm.state = new number(newVal.state);
       }
-      // if (newVal) {
-      //   this.ItemForm = {
-      //     ...this.ItemForm,
-      //     ...newVal,
-      //   };
-      // }
     },
     formatDateToISOString(date) {
       // 确保输入是一个Date对象
@@ -168,11 +147,30 @@ export default {
     ItemDialogFun() {
       if (this.type == "save") {
         this.saveItemFun();
-      } else if (type == "update") {
+      } else if (this.type == "update") {
         this.updateItemFun();
       }
     },
-    updateItemFun() {},
+    updateItemFun() {
+      const data = {
+        id: this.updateItemData.id,
+        name: this.ItemForm.name,
+        startdate: this.ItemForm.startdate,
+        enddate: this.ItemForm.enddate,
+        state: this.ItemForm.state,
+        userid: this.ItemForm.userid,
+      };
+      updateItem(data).then((res) => {
+        if (res.code) {
+          // this.refreshData();
+          this.visible = false;
+          this.$message({
+            message: "修改成功",
+            type: "success",
+          });
+        }
+      });
+    },
     saveItemFun() {
       const data = {
         name: this.ItemForm.name,
@@ -187,6 +185,8 @@ export default {
             message: "保存成功",
             type: "success",
           });
+          this.refreshData();
+          this.visible = false;
           this.$router.push({ name: "project" });
         } else {
           this.$message({

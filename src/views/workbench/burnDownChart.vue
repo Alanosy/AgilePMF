@@ -35,6 +35,11 @@ export default {
         if(res.code){
           this.data = res.data
           this.drawChart()
+        }else{
+          this.$message({
+            type: "info",
+            message: res.msg,
+          });
         }
       })
     },

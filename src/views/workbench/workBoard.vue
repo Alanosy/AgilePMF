@@ -51,18 +51,18 @@
           </template>
           </el-table-column>
        </el-table-column>
-            <el-table-column prop="finishtime" label="实际完成"> 
+            <!-- <el-table-column prop="finishtime" label="实际完成"> 
                 <template v-slot="{ row }">
-            {{ formatDate(row.finishtime) }}
+                  <span v-if="row.finishtime"> {{ formatDate(row.finishtime) }}</span>
           </template>
-            </el-table-column>
+            </el-table-column> -->
           </el-table>
           <div class="yes-pagination-com" style="justify-content: flex-end">
             <el-pagination
               small
               background="false"
               layout="prev, pager, next"
-              :total="50"
+              :total="ReqData.total"
             >
             </el-pagination>
           </div>
@@ -112,18 +112,18 @@
           </template>
           </el-table-column>
        </el-table-column>
-            <el-table-column prop="finishtime" label="实际完成"> 
+            <!-- <el-table-column prop="finishtime" label="实际完成"> 
                 <template v-slot="{ row }">
-            {{ formatDate(row.finishtime) }}
+                  <span v-if="row.finishtime"> {{ formatDate(row.finishtime) }}</span>
           </template>
-            </el-table-column>
+            </el-table-column> -->
           </el-table>
           <div class="yes-pagination-com" style="justify-content: flex-end">
             <el-pagination
               small
               background="false"
               layout="prev, pager, next"
-              :total="50"
+              :total="ReqMeData.total"
             >
             </el-pagination>
           </div>
@@ -179,19 +179,19 @@
            <span :style="{ color: getPriorityColor(row.priority) }">{{ getPriorityf(row.priority) }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="updateTime" label="最后更新">
+            <!-- <el-table-column prop="updateTime" label="最后更新">
             
               <template v-slot="{ row }">
-            {{ formatDate(row.updateTime) }}
+                <span v-if="row.updateTime"> {{ formatDate(row.updateTime) }}</span>
           </template>
-             </el-table-column>
+             </el-table-column> -->
           </el-table>
           <div class="yes-pagination-com" style="justify-content: flex-end">
             <el-pagination
               small
               background="false"
               layout="prev, pager, next"
-              :total="50"
+              :total="IssueData.total"
             >
             </el-pagination>
           </div>
@@ -247,19 +247,19 @@
            <span :style="{ color: getPriorityColor(row.priority) }">{{ getPriorityf(row.priority) }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="updateTime" label="最后更新">
+            <!-- <el-table-column prop="updateTime" label="最后更新">
             
               <template v-slot="{ row }">
-            {{ formatDate(row.updateTime) }}
+                <span v-if="row.updateTime">  {{ formatDate(row.updateTime) }}</span>
           </template>
-             </el-table-column>
+             </el-table-column> -->
           </el-table>
           <div class="yes-pagination-com" style="justify-content: flex-end">
             <el-pagination
               small
               background="false"
               layout="prev, pager, next"
-              :total="50"
+              :total="IssueMeData.total"
             >
             </el-pagination>
           </div>
@@ -297,21 +297,21 @@
             </el-table-column>
             <el-table-column prop="finishtime" label="实际完成"> 
                <template v-slot="{ row }">
-            {{ formatDate(row.finishtime) }}
+                <span v-if="row.finishtime"> {{ formatDate(row.finishtime) }}</span>
           </template>
             </el-table-column>
-            <el-table-column prop="updatetime" label="最后更新">
+            <!-- <el-table-column prop="updatetime" label="最后更新">
                <template v-slot="{ row }">
-            {{ formatDate(row.updatetime) }}
+                <span v-if="row.updateTime">  {{ formatDate(row.updatetime) }}</span>
           </template>
-             </el-table-column>
+             </el-table-column> -->
           </el-table>
           <div class="yes-pagination-com" style="justify-content: flex-end">
             <el-pagination
               small
               background="false"
               layout="prev, pager, next"
-              :total="50"
+              :total="TaskData.total"
             >
             </el-pagination>
           </div>
@@ -349,21 +349,21 @@
             </el-table-column>
             <el-table-column prop="finishtime" label="实际完成"> 
                <template v-slot="{ row }">
-            {{ formatDate(row.finishtime) }}
+                <span v-if="row.finishtime">  {{ formatDate(row.finishtime) }}</span>
           </template>
             </el-table-column>
-            <el-table-column prop="updatetime" label="最后更新">
+            <!-- <el-table-column prop="updatetime" label="最后更新">
                <template v-slot="{ row }">
-            {{ formatDate(row.updatetime) }}
+                <span v-if="row.updateTime"> {{ formatDate(row.updatetime) }}</span>
           </template>
-             </el-table-column>
+             </el-table-column> -->
           </el-table>
           <div class="yes-pagination-com" style="justify-content: flex-end">
             <el-pagination
               small
               background="false"
               layout="prev, pager, next"
-              :total="50"
+              :total="TaskMeData.total"
             >
             </el-pagination>
           </div>
@@ -405,17 +405,24 @@
               small
               background="false"
               layout="prev, pager, next"
-              :total="50"
+              :total="ItemData.total"
             >
             </el-pagination>
           </div>
         </div>
       </div>
     </div>
-  
-    <ReqDetails v-model="reqDialogVisible" :selectedRow="this.selectedRow"></ReqDetails>
-    <TaskDetails  v-model="taskDialogVisible" :selectedRow="this.selectedRow"></TaskDetails>
-     <IssueDetails v-model="issueDialogVisible":selectedRow="this.selectedRow"></IssueDetails>
+      <!-- 需求对话框 -->
+      <req-dialog v-model="requirementVisible" title="添加需求" :refreshData="getReqFun"> </req-dialog>
+    <!-- 添加问题 -->
+    <issue-dialog v-model="issueVisible" title="添加问题" :refreshData="getIssueFun"> </issue-dialog>
+
+    <!-- 添加任务 -->
+    <task-dialog v-model="taskVisible" title="添加任务" :refreshData="getTaskFun"> </task-dialog>
+
+    <ReqDetails v-model="reqDialogVisible" :selectedRow="this.selectedRow" :refreshData="getReqFun"></ReqDetails>
+    <TaskDetails  v-model="taskDialogVisible" :selectedRow="this.selectedRow" :refreshData="getTaskFun"></TaskDetails>
+     <IssueDetails v-model="issueDialogVisible":selectedRow="this.selectedRow" :refreshData="getIssueFun"></IssueDetails>
     
   
   </div>

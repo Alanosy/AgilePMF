@@ -37,3 +37,12 @@ export function updateStatusAPI(data) {
   })
 }
 
+
+export function updateIssue(issueId,data) {
+  return request({
+    url: `issues/${issueId}`,
+    method: 'put',
+    data
+  })
+}
+

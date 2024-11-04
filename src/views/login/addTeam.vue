@@ -20,14 +20,13 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    userId: {
+      type: String,
+      default: "",
+    },
   },
-  watch: {
-    data(val) {
-      this.userData = val;
-    },
-    userData(val) {
-      this.$emit("input", val);
-    },
+  created() {
+    console.log(this.userId);
   },
   data() {
     return {
@@ -39,26 +38,25 @@ export default {
   },
   methods: {
     addTeamFun() {
-        const data = {
-            tcode: this.addTeamForm.tcode,
-            userId: this.userData.id,
-          };
-        
-        addTeam(data).then((resv) => {
-          if (resv.code) {
-            this.$message({
-              type: "success",
-              message: resv.msg,
-            });
-            this.$router.push({ path: "/hint" });
-          } else {
-            this.$message({
-              type: "info",
-              message: resv.msg,
-            });
-          }
-        });
+      const data = {
+        tcode: this.addTeamForm.tcode,
+        userId: this.userId,
+      };
 
+      addTeam(data).then((resv) => {
+        if (resv.code) {
+          this.$message({
+            type: "success",
+            message: resv.msg,
+          });
+          this.$router.push({ path: "/hint" });
+        } else {
+          this.$message({
+            type: "info",
+            message: resv.msg,
+          });
+        }
+      });
     },
     getVerify() {
       this.$refs.captchaImg.src = `/api/auths/captcha?${Math.random()}`;

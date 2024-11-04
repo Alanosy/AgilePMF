@@ -36,7 +36,7 @@
         @close="handleClose"
       >
         <el-menu-item index="2"  @click="goToTeam">
-          <span slot="title" @click="goToTeam">我到团队</span>
+          <span slot="title" @click="goToTeam">我的团队</span>
         </el-menu-item>
         <el-menu-item index="3" @click="goToAccount">
           <span slot="title"  @click="goToAccount">我的账号</span>

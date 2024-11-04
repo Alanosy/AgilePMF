@@ -39,7 +39,7 @@ export default {
       items: [
         { title: '我的工作台', component: 'MyTasks' },
         { title: '任务看板', component: 'AssignedTasks' },
-        { title: '敏捷图表', component: 'agileChart' },
+        { title: '燃尽图', component: 'agileChart' },
 
       ]
     };

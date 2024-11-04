@@ -9,14 +9,10 @@
         <el-button type="primary" @click="searchItem">查询</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button
-          type="primary"
-          @click="itemDialogVisible=true"
-          >新增</el-button
-        >
+        <el-button type="primary" @click="itemDialogVisible = true">新增</el-button>
       </el-form-item>
     </el-form>
-        <el-tabs v-model="tabValue" @tab-click="handleClick">
+    <el-tabs v-model="tabValue" @tab-click="handleClick">
       <el-tab-pane label="全部项目" name="0"></el-tab-pane>
       <el-tab-pane label="我负责的" name="1"></el-tab-pane>
       <el-tab-pane label="我创建的" name="2"></el-tab-pane>
@@ -24,7 +20,7 @@
     <!-- 表格 -->
     <el-table
       :data="data.records"
-       @row-click="handleRowClick"
+      @row-click="handleRowClick"
       :header-cell-style="{
         background: '#f2f3f4',
         color: '#555',
@@ -34,7 +30,7 @@
     >
       <el-table-column align="center" type="selection" width="55" />
       <el-table-column prop="name" label="项目名称" align="center" />
-      <el-table-column prop="state" label="状态" align="center" >
+      <el-table-column prop="state" label="状态" align="center">
         <template #default="{ row }">
           <span :style="{ color: getPriorityColor(row.state) }">{{
             getRowPriority(row.state)
@@ -58,26 +54,30 @@
         @current-change="handleCurrentChange"
       />
     </div>
-    <ItemDialog v-model="itemDialogVisible" :selectedRow="this.selectedRow"></ItemDialog>
+    <ItemDialog
+      v-model="itemDialogVisible"
+      :selectedRow="this.selectedRow"
+      :refreshData="this.getItemPageFun"
+      type="save"
+    ></ItemDialog>
   </div>
 </template>
 
 <script>
-import { getItemPage } from "@/api/project"
-import ItemDialog from "@/components/ItemDialog"
+import { getItemPage } from "@/api/project";
+import ItemDialog from "@/components/ItemDialog";
 export default {
   components: {
-    ItemDialog
+    ItemDialog,
   },
   data() {
     return {
-      selectedRow:{},
-      itemDialogVisible:false,
-      tabValue:"0",
+      selectedRow: {},
+      itemDialogVisible: false,
+      tabValue: "0",
       pageNum: 1,
       pageSize: 10,
-      data: {
-      },
+      data: {},
       itemFrom: {
         searchTitle: "",
       },
@@ -87,20 +87,24 @@ export default {
     this.getItemPageFun();
   },
   methods: {
-     handleClick(tab, event) {
-      this.getItemPageFun(this.pageNum, this.pageSize,  null,tab.index,) 
+    handleClick(tab, event) {
+      this.getItemPageFun(this.pageNum, this.pageSize, null, tab.index);
     },
     handleRowClick(row) {
-      this.openItem(row,'item')
+      this.openItem(row, "item");
     },
-     getPriorityColor(priority) {
+    getPriorityColor(priority) {
       switch (priority) {
         case "1":
-          return "red";
+          return "green";
         case "2":
           return "orange";
         case "3":
-          return "green";
+          return "brown";
+        case "4":
+          return "red";
+        case "5":
+          return "black";
         default:
           return "black"; // 默认颜色
       }
@@ -108,25 +112,36 @@ export default {
     // 获取优先级字典
     getRowPriority(priority) {
       switch (priority) {
-        case "0": // Emergency
+        case "1": // Emergency
+          return "立项中";
+        case "2": // High
+          return "规划中";
+        case "3": // Medium
           return "进行中";
-        case "1": // High
+        case "4": // Medium
           return "已完成";
-        case "2": // Medium
+        case "5": // Medium
           return "挂起";
+
         default:
           return "";
       }
     },
+
     // 分页查询
-    async getItemPageFun(pageNum, pageSize, itemName = null,type=null) {
-      const params = { "pageNum": pageNum, "pageSize": pageSize, "itemName": itemName ,"type":type};
+    async getItemPageFun(pageNum, pageSize, itemName = null, type = null) {
+      const params = {
+        pageNum: pageNum,
+        pageSize: pageSize,
+        itemName: itemName,
+        type: type,
+      };
       const res = await getItemPage(params);
       this.data = res.data;
     },
     // 新增
-    openItem(row,name){
-      this.$router.push({ name: name, query: { data: row }})
+    openItem(row, name) {
+      this.$router.push({ name: name, query: { data: row } });
     },
     // 搜索
     searchItem() {
@@ -140,14 +155,13 @@ export default {
     handleSizeChange(val) {
       // 设置每页多少条逻辑
       this.pageSize = val;
-      this.getItemPageFun(this.pageNum, val,null,null);
+      this.getItemPageFun(this.pageNum, val, null, null);
     },
     handleCurrentChange(val) {
       // 设置当前页逻辑
       this.pageNum = val;
-      this.getItemPageFun(val, this.pageSize,null,null);
+      this.getItemPageFun(val, this.pageSize, null, null);
     },
-
   },
 };
 </script>

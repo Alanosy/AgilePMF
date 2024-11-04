@@ -7,7 +7,6 @@
           <el-tabs v-model="tabsc" @tab-click="handleClick">
             <el-tab-pane label="项目文档" name="0">
               <div v-html="selectedRow.content"></div
-              
             ></el-tab-pane>
           </el-tabs>
         </div>
@@ -31,7 +30,7 @@
               <el-select
                 v-model="selectedRow.state"
                 placeholder="请选择"
-                @change="updateStatus(row)"
+                @change="updateTaskFun(selectedRow)"
               >
                 <el-option
                   v-for="item in stateOptions"
@@ -47,7 +46,6 @@
                 v-model="selectedRow.principalid"
                 style="width: 200px"
               ></UserSelect>
-            
             </el-form-item>
           </el-row>
         </el-form>
@@ -61,7 +59,7 @@ import { saveReq } from "@/api/requirement";
 import UserSelect from "@/components/UserSelect";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import ProjectSelect from "@/components/ItemSelect";
-import {delTask} from '@/api/task'
+import { delTask, updateTask } from "@/api/task";
 export default {
   components: {
     Editor,
@@ -92,7 +90,7 @@ export default {
     return {
       visible: this.value,
 
-     stateOptions: [
+      stateOptions: [
         {
           label: "待办",
           value: "0",
@@ -105,11 +103,8 @@ export default {
           label: "已完成",
           value: "2",
         },
-
-        
-        
-        ],
-      tabsc:'0',
+      ],
+      tabsc: "0",
     };
   },
   watch: {
@@ -129,6 +124,19 @@ export default {
       const day = String(date.getDate()).padStart(2, "0");
       return `${year}-${month}-${day}`;
     },
+    updateTaskFun(row) {
+      const data = {
+        state: row.state,
+      };
+      updateTask(row.id, data).then((res) => {
+        this.$message({
+          type: "success",
+          message: "修改状态成功!",
+        });
+        this.refreshData();
+      });
+    },
+
     delTaskFun() {
       delTask(this.selectedRow.id).then((res) => {
         if (res.code) {
@@ -136,13 +144,14 @@ export default {
             type: "success",
             message: "删除成功!",
           });
+          this.refreshData();
           this.visible = false;
         } else {
           this.$message.error("删除失败，请重试。");
         }
       });
     },
-  }
+  },
 };
 </script>
 <style scoped>
