@@ -3,16 +3,11 @@
   <div class="app-container">
     <!-- form -->
     <el-form :inline="true" :model="perForm" class="demo-form-inline">
-      <el-form-item label="团队名称">
-        <el-input v-model="perForm.realName" placeholder="输入项目名称" />
+      <el-form-item label="用户名称">
+        <el-input v-model="perForm.realName" placeholder="请输入用户名称" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="searchPer">查询</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button :title="diaTitle" type="primary" @click="issueVisible = true"
-          >新增</el-button
-        >
       </el-form-item>
     </el-form>
 
@@ -298,7 +293,7 @@ export default {
     },
     // 搜索方法
     searchPer() {
-      this.getTeamUserFun(this.pageNum, this.pageSize,this.perForm.realName);
+      this.getTeamApplyFun(this.pageNum, this.pageSize,this.perForm.realName);
     },
     // 每页多少
     handleSizeChange(val) {

@@ -121,12 +121,13 @@ export default {
   },
   methods: {
     fillFormFromUpdateData(newVal) {
-      console.log(newVal);
+      console.log(newVal.state,"state")
       if (newVal) {
         this.ItemForm.name = newVal.name;
         this.ItemForm.startdate = newVal.startdate;
         this.ItemForm.enddate = newVal.enddate;
-        this.ItemForm.state = new number(newVal.state);
+        
+        this.ItemForm.state = parseInt(newVal.state);
       }
     },
     formatDateToISOString(date) {

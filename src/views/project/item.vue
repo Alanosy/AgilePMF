@@ -27,7 +27,7 @@
             <div>
               <div>项目名称：{{ OverviewData.itemName }}</div>
               <div>创 建 人: {{ OverviewData.userName }}</div>
-              <div>项目状态: {{ OverviewData.state }}</div>
+              <div>项目状态: {{ getItemState(OverviewData.state) }}</div>
             </div>
           </div>
           <div class="r1block">
@@ -796,6 +796,22 @@ export default {
           return "orange";
         case "2":
           return "green";
+        default:
+          return "black";
+      }
+    },
+    getItemState(state) {
+      switch (state) {
+        case 1:
+          return "立项中";
+        case 2:
+          return "规划中";
+        case 3:
+          return "进行中";
+          case 4:
+          return "已完成";
+          case 5:
+          return "挂起";
         default:
           return "black";
       }

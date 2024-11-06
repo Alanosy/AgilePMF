@@ -44,11 +44,11 @@ computed:{
       getTaskType(isLeaveOver) {
       switch (isLeaveOver) {
         case "0": // Emergency
-          return "success";
+          return "brand ";
         case "1": // High
-          return "Danger";
+          return "danger";
         case "2": // Medium
-          return "Warning";
+          return "warning";
         case "3": // Medium
           return "success";
         default:

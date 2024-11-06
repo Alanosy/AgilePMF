@@ -71,7 +71,7 @@ export default {
   props: {
     title: {
       type: String,
-      default: "提示",
+      default: "需求详情",
     },
     value: {
       type: Boolean,
